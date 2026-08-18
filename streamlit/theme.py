@@ -37,6 +37,7 @@ CORES_FRENTES = {
     "Documentação": "#02DE81",
     "Indicadores": "#00C46E",
     "Treinamento": "#34D399",
+    "Qualidade": "#111111",
 }
 
 

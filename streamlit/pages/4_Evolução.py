@@ -21,7 +21,7 @@ from ui import (
 )
 
 preparar_dados()
-doc, ind, tre = dados_filtrados_op()
+doc, ind, tre, qua = dados_filtrados_op()
 
 aplicar_css()
 header("Evolução")
@@ -30,12 +30,12 @@ titulo_pagina(
     "Score final ao longo dos ciclos de avaliação (ignora o filtro de período).",
 )
 
-if doc.empty and ind.empty and tre.empty:
+if doc.empty and ind.empty and tre.empty and qua.empty:
     empty_state()
     st.stop()
 
 secao("Score Final por Ciclo de Avaliação")
-serie = serie_evolucao(doc, ind, tre)
+serie = serie_evolucao(doc, ind, tre, qua)
 if not serie.empty:
     fig = go.Figure()
     for op, g in serie.groupby("Operação"):
@@ -64,7 +64,7 @@ else:
     empty_state()
 
 secao("Último Ciclo vs Ciclo Anterior")
-evol = evolucao(doc, ind, tre)
+evol = evolucao(doc, ind, tre, qua)
 if not evol.empty:
     exibir = evol.copy()
     exibir["Faixa"] = exibir["Faixa"].map(chip_faixa)

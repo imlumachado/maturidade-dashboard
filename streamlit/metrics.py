@@ -10,11 +10,12 @@ from typing import Optional
 
 import pandas as pd
 
-FATOS = ("Documentação", "Indicadores", "Treinamento")
+FATOS = ("Documentação", "Indicadores", "Treinamento", "Qualidade")
 
 SUB_DOC = ["Sub Existência", "Sub Atualização", "Sub Padrão", "Sub Conformidade"]
 SUB_IND = SUB_DOC
 SUB_TRE = ["Sub Coerência", "Sub Aplicação", "Sub Atualização", "Sub Conformidade"]
+SUB_QUA = ["Sub Existência", "Sub Abrangência", "Sub Conformidade"]
 
 
 # ---------------------------------------------------------------------------
@@ -27,8 +28,17 @@ def score_frente(df: pd.DataFrame) -> Optional[float]:
     return None if pd.isna(s) else float(s)
 
 
-def score_final(doc: pd.DataFrame, ind: pd.DataFrame, tre: pd.DataFrame) -> Optional[float]:
-    scores = [s for s in (score_frente(doc), score_frente(ind), score_frente(tre)) if s is not None]
+def score_final(
+    doc: pd.DataFrame,
+    ind: pd.DataFrame,
+    tre: pd.DataFrame,
+    qua: pd.DataFrame,
+) -> Optional[float]:
+    scores = [
+        s
+        for s in (score_frente(doc), score_frente(ind), score_frente(tre), score_frente(qua))
+        if s is not None
+    ]
     if not scores:
         return None
     return sum(scores) / len(scores)
@@ -93,17 +103,20 @@ def metricas_treinamento(df: pd.DataFrame) -> dict:
 # ---------------------------------------------------------------------------
 # Agregados da visão geral (cruzam as 3 frentes)
 # ---------------------------------------------------------------------------
-def metricas_geral(doc: pd.DataFrame, ind: pd.DataFrame, tre: pd.DataFrame) -> dict:
+def metricas_geral(
+    doc: pd.DataFrame, ind: pd.DataFrame, tre: pd.DataFrame, qua: pd.DataFrame
+) -> dict:
     datas = pd.concat(
         [
             doc["Data da avaliação"],
             ind["Data da avaliação"],
             tre["Data da avaliação"],
+            qua["Data da avaliação"],
         ]
     )
-    ops = set(doc["Operação"]) | set(ind["Operação"]) | set(tre["Operação"])
+    ops = set(doc["Operação"]) | set(ind["Operação"]) | set(tre["Operação"]) | set(qua["Operação"])
     return {
-        "Itens Avaliados Total": len(doc) + len(ind) + len(tre),
+        "Itens Avaliados Total": len(doc) + len(ind) + len(tre) + len(qua),
         "Operações Avaliadas": len(ops),
         "Data Última Avaliação": datas.max().date() if not datas.empty else None,
         "Data Primeira Avaliação": datas.min().date() if not datas.empty else None,
@@ -111,16 +124,19 @@ def metricas_geral(doc: pd.DataFrame, ind: pd.DataFrame, tre: pd.DataFrame) -> d
             _conta(doc, "Sub Conformidade", -1.0)
             + _conta(ind, "Sub Conformidade", -1.0)
             + _conta(tre, "Sub Conformidade", -1.0)
+            + _conta(qua, "Sub Conformidade", -1.0)
         ),
         "Não Conformes Total": (
             _conta(doc, "Sub Conformidade", 0.0)
             + _conta(ind, "Sub Conformidade", 0.0)
             + _conta(tre, "Sub Conformidade", 0.0)
+            + _conta(qua, "Sub Conformidade", 0.0)
         ),
         "Itens Negativos Total": (
             int((doc["ScoreLinha"] < 0).sum())
             + int((ind["ScoreLinha"] < 0).sum())
             + int((tre["ScoreLinha"] < 0).sum())
+            + int((qua["ScoreLinha"] < 0).sum())
         ),
     }
 
@@ -128,8 +144,15 @@ def metricas_geral(doc: pd.DataFrame, ind: pd.DataFrame, tre: pd.DataFrame) -> d
 # ---------------------------------------------------------------------------
 # Scores por operação (por frente e final)
 # ---------------------------------------------------------------------------
-def scores_por_operacao(doc: pd.DataFrame, ind: pd.DataFrame, tre: pd.DataFrame) -> pd.DataFrame:
-    ops = sorted(set(doc["Operação"]) | set(ind["Operação"]) | set(tre["Operação"]))
+def scores_por_operacao(
+    doc: pd.DataFrame, ind: pd.DataFrame, tre: pd.DataFrame, qua: pd.DataFrame
+) -> pd.DataFrame:
+    ops = sorted(
+        set(doc["Operação"])
+        | set(ind["Operação"])
+        | set(tre["Operação"])
+        | set(qua["Operação"])
+    )
     linhas = []
     for op in ops:
         linhas.append(
@@ -138,10 +161,12 @@ def scores_por_operacao(doc: pd.DataFrame, ind: pd.DataFrame, tre: pd.DataFrame)
                 "Documentação": score_frente(doc[doc["Operação"] == op]),
                 "Indicadores": score_frente(ind[ind["Operação"] == op]),
                 "Treinamento": score_frente(tre[tre["Operação"] == op]),
+                "Qualidade": score_frente(qua[qua["Operação"] == op]),
                 "Score Final": score_final(
                     doc[doc["Operação"] == op],
                     ind[ind["Operação"] == op],
                     tre[tre["Operação"] == op],
+                    qua[qua["Operação"] == op],
                 ),
             }
         )
@@ -175,8 +200,10 @@ def _score_em(d: object, fatos: list[pd.DataFrame]) -> Optional[float]:
     return sum(scores) / len(scores)
 
 
-def evolucao(doc: pd.DataFrame, ind: pd.DataFrame, tre: pd.DataFrame) -> pd.DataFrame:
-    fatos = [doc, ind, tre]
+def evolucao(
+    doc: pd.DataFrame, ind: pd.DataFrame, tre: pd.DataFrame, qua: pd.DataFrame
+) -> pd.DataFrame:
+    fatos = [doc, ind, tre, qua]
     linhas = []
     ops = sorted({o for df in fatos for o in df["Operação"].dropna().unique()})
     for op in ops:
@@ -208,18 +235,22 @@ def evolucao(doc: pd.DataFrame, ind: pd.DataFrame, tre: pd.DataFrame) -> pd.Data
     return pd.DataFrame(linhas)
 
 
-def ultimo_ciclo_global(doc: pd.DataFrame, ind: pd.DataFrame, tre: pd.DataFrame) -> Optional[float]:
+def ultimo_ciclo_global(
+    doc: pd.DataFrame, ind: pd.DataFrame, tre: pd.DataFrame, qua: pd.DataFrame
+) -> Optional[float]:
     """Score final do ciclo mais recente (ignora filtro de data)."""
-    fatos = [doc, ind, tre]
+    fatos = [doc, ind, tre, qua]
     datas = _datas_unica(fatos)
     if not datas:
         return None
     return _score_em(datas[-1], fatos)
 
 
-def serie_evolucao(doc: pd.DataFrame, ind: pd.DataFrame, tre: pd.DataFrame) -> pd.DataFrame:
+def serie_evolucao(
+    doc: pd.DataFrame, ind: pd.DataFrame, tre: pd.DataFrame, qua: pd.DataFrame
+) -> pd.DataFrame:
     """Score final por data de avaliação (para o gráfico de linha)."""
-    fatos = [doc, ind, tre]
+    fatos = [doc, ind, tre, qua]
     ops = sorted({o for df in fatos for o in df["Operação"].dropna().unique()})
     linhas = []
     for op in ops:

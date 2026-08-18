@@ -47,20 +47,20 @@ def _fmt_int(v):
 
 
 preparar_dados()
-doc, ind, tre = dados_filtrados()
-doc_op, ind_op, tre_op = dados_filtrados_op()
+doc, ind, tre, qua = dados_filtrados()
+doc_op, ind_op, tre_op, qua_op = dados_filtrados_op()
 plano = st.session_state.plano
 
 aplicar_css()
 header("Visão Geral")
 titulo_pagina("Visão Geral", "Análise de Maturidade em Processos")
 
-if doc.empty and ind.empty and tre.empty:
+if doc.empty and ind.empty and tre.empty and qua.empty:
     empty_state("Nenhum dado para os filtros selecionados.")
     st.stop()
 
-geral = metricas_geral(doc, ind, tre)
-score_ultimo = ultimo_ciclo_global(doc_op, ind_op, tre_op)
+geral = metricas_geral(doc, ind, tre, qua)
+score_ultimo = ultimo_ciclo_global(doc_op, ind_op, tre_op, qua_op)
 faixa = faixa_maturidade(score_ultimo)
 metricas_pa = {
     "Vencidas": int(
@@ -73,7 +73,7 @@ metricas_pa = {
 secao("Indicadores-chave")
 linha_cards(
     [
-        {"titulo": "Score Final Último Ciclo", "valor": score_ultimo, "sub": faixa or "", "cor": VERDE, "valor_format": _fmt_score},
+        {"titulo": "Score Final", "valor": score_ultimo, "sub": faixa or "", "cor": VERDE, "valor_format": _fmt_score},
         {"titulo": "Operações Avaliadas", "valor": geral["Operações Avaliadas"], "cor": VERDE, "valor_format": _fmt_int},
         {"titulo": "Ações Vencidas", "valor": metricas_pa["Vencidas"], "cor": "#E23C3C", "valor_format": _fmt_int},
         {"titulo": "Data Última Avaliação", "valor": geral["Data Última Avaliação"], "cor": PRETO},
@@ -91,10 +91,10 @@ linha_cards(
 )
 
 secao("Scores por Operação e Frente")
-scores = scores_por_operacao(doc, ind, tre)
+scores = scores_por_operacao(doc, ind, tre, qua)
 if not scores.empty:
     fig = go.Figure()
-    for frente in ("Documentação", "Indicadores", "Treinamento"):
+    for frente in ("Documentação", "Indicadores", "Treinamento", "Qualidade"):
         fig.add_trace(
             go.Bar(
                 name=frente,
@@ -131,7 +131,7 @@ else:
     empty_state()
 
 secao("Ranking das Operações (último ciclo vs anterior)")
-evol = evolucao(doc_op, ind_op, tre_op)
+evol = evolucao(doc_op, ind_op, tre_op, qua_op)
 if not evol.empty:
     evol_display = evol.copy()
     evol_display["Faixa"] = evol_display["Faixa"].map(chip_faixa)

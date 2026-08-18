@@ -86,6 +86,16 @@ def fn_atualizacao(v):
     return None
 
 
+def fn_numerico(v):
+    """Aba Qualidade já traz valores numéricos (1 / 0.5 / 0 / -1)."""
+    if v is None or pd.isna(v):
+        return None
+    try:
+        return float(v)
+    except (TypeError, ValueError):
+        return None
+
+
 def _arredondar(v):
     return int(Decimal(str(v)).quantize(Decimal("1"), rounding=ROUND_HALF_UP))
 
@@ -126,6 +136,15 @@ _CONFIG = {
             ("Sub Aplicação", "Treinamento foi aplicado?", fn_sim_nao),
             ("Sub Atualização", "Houve atualização?", fn_sim_nao),
             ("Sub Conformidade", "Conforme?", fn_conformidade),
+        ],
+    },
+    "Qualidade": {
+        "frente": "Qualidade",
+        "col_item": "Processo avaliado",
+        "subs": [
+            ("Sub Existência", "Existência", fn_numerico),
+            ("Sub Abrangência", "Abrangência", fn_numerico),
+            ("Sub Conformidade", "Conformidade", fn_numerico),
         ],
     },
 }
@@ -184,7 +203,7 @@ def _mtime() -> float:
 
 @lru_cache(maxsize=1)
 def carregar_dados(mtime: float = 0.0) -> dict[str, pd.DataFrame]:
-    """Carrega o formulário e devolve as 4 tabelas do modelo.
+    """Carrega o formulário e devolve as 5 tabelas do modelo.
 
     O parâmetro `mtime` (não usado internamente) faz o cache ser invalidado
     automaticamente sempre que a planilha for salva.
@@ -193,9 +212,11 @@ def carregar_dados(mtime: float = 0.0) -> dict[str, pd.DataFrame]:
     doc = _fato("Avaliação", _CONFIG["Avaliação"])
     ind = _fato("Indicadores", _CONFIG["Indicadores"])
     tre = _fato("Treinamento", _CONFIG["Treinamento"])
+    qua = _fato("Qualidade", _CONFIG["Qualidade"])
     return {
         "Documentacao": doc,
         "Indicadores": ind,
         "Treinamento": tre,
+        "Qualidade": qua,
         "PlanoAcao": _plano_acao(doc, ind, tre),
     }

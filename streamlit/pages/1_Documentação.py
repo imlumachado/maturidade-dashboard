@@ -10,7 +10,7 @@ from pagina_frente import renderizar
 from theme import CORES_FRENTES
 
 preparar_dados()
-doc, _, _ = dados_filtrados()
+doc, _, _, _ = dados_filtrados()
 
 renderizar(
     doc,

@@ -143,33 +143,35 @@ def _dados_sinteticos():
     )
     ind = _fato([("A", "P1", "2026-08-01", [1, 1, 1, 1])], frente="Indicadores")
     tre = _fato([], frente="Treinamento")
-    return doc, ind, tre
+    qua = _fato([("A", "P1", "2026-08-01", [1, 1, 1, 1])], frente="Qualidade")
+    return doc, ind, tre, qua
 
 
 def test_score_frente():
-    doc, ind, tre = _dados_sinteticos()
+    doc, ind, tre, qua = _dados_sinteticos()
     assert score_frente(doc) == pytest.approx(81.25)  # 100, 50, 100, 75 -> 325/4
     assert score_frente(tre) is None
 
 
 def test_score_final():
-    doc, ind, tre = _dados_sinteticos()
-    # Doc 81.25 + Ind 100 -> média das frentes avaliadas = 90.625
-    assert score_final(doc, ind, tre) == pytest.approx(90.625)
+    doc, ind, tre, qua = _dados_sinteticos()
+    # Doc 81.25 + Ind 100 + Qualidade 100 -> média das frentes avaliadas = 93.75
+    assert score_final(doc, ind, tre, qua) == pytest.approx(93.75)
 
 
 def test_scores_por_operacao():
-    doc, ind, tre = _dados_sinteticos()
-    df = scores_por_operacao(doc, ind, tre)
+    doc, ind, tre, qua = _dados_sinteticos()
+    df = scores_por_operacao(doc, ind, tre, qua)
     a = df[df["Operação"] == "A"].iloc[0]
     assert a["Documentação"] == pytest.approx(75)  # 100, 50
+    assert a["Qualidade"] == pytest.approx(100)
     b = df[df["Operação"] == "B"].iloc[0]
     assert b["Documentação"] == pytest.approx(87.5)  # 100, 75
 
 
 def test_evolucao():
-    doc, ind, tre = _dados_sinteticos()
-    df = evolucao(doc, ind, tre)
+    doc, ind, tre, qua = _dados_sinteticos()
+    df = evolucao(doc, ind, tre, qua)
     b = df[df["Operação"] == "B"].iloc[0]
     assert b["Score Final Último Ciclo"] == pytest.approx(100)
     assert b["Score Final Ciclo Anterior"] == pytest.approx(75)
@@ -178,21 +180,21 @@ def test_evolucao():
 
 
 def test_serie_evolucao():
-    doc, ind, tre = _dados_sinteticos()
-    df = serie_evolucao(doc, ind, tre)
+    doc, ind, tre, qua = _dados_sinteticos()
+    df = serie_evolucao(doc, ind, tre, qua)
     assert {"2026-07-01", "2026-08-01"} <= set(df["Data"].dt.strftime("%Y-%m-%d"))
 
 
 def test_ultimo_ciclo_global():
-    doc, ind, tre = _dados_sinteticos()
-    # ciclo 08/2026: Doc A 75, B 100, Ind A 100 -> 91.66...
-    assert ultimo_ciclo_global(doc, ind, tre) == pytest.approx(91.6666, abs=0.01)
+    doc, ind, tre, qua = _dados_sinteticos()
+    # ciclo 08/2026: Doc 83.33, Ind 100, Qualidade 100 -> 94.44
+    assert ultimo_ciclo_global(doc, ind, tre, qua) == pytest.approx(94.4444, abs=0.01)
 
 
 def test_metricas_geral():
-    doc, ind, tre = _dados_sinteticos()
-    m = metricas_geral(doc, ind, tre)
-    assert m["Itens Avaliados Total"] == 5
+    doc, ind, tre, qua = _dados_sinteticos()
+    m = metricas_geral(doc, ind, tre, qua)
+    assert m["Itens Avaliados Total"] == 6
     assert m["Operações Avaliadas"] == 2
 
 
@@ -220,7 +222,7 @@ def test_metricas_plano():
 @pytest.mark.skipif(not (FORMULARIO / "F_O_025_Formulario_Maturidade_Planos.xlsx").exists(), reason="formulário ausente")
 def test_carregar_dados_real():
     d = carregar_dados(_mtime())
-    assert set(d) == {"Documentacao", "Indicadores", "Treinamento", "PlanoAcao"}
+    assert set(d) == {"Documentacao", "Indicadores", "Treinamento", "Qualidade", "PlanoAcao"}
     assert not d["Documentacao"].empty
     assert not (d["Documentacao"]["Operação"] == "Exemplo (apagar)").any()
     assert d["Documentacao"]["ScoreLinha"].between(-100, 100).all()

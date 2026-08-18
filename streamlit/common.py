@@ -8,7 +8,7 @@ import streamlit as st
 from data_loader import _mtime, carregar_dados as _carregar
 from theme import CINZA_ESCURO, VERDE, BRANCO
 
-_FATOS = ("Documentacao", "Indicadores", "Treinamento")
+_FATOS = ("Documentacao", "Indicadores", "Treinamento", "Qualidade")
 
 
 @st.cache_data(show_spinner="Carregando formulário de maturidade...")
@@ -100,11 +100,11 @@ def preparar_dados() -> None:
     st.session_state.plano = plano
 
 
-def dados_filtrados() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+def dados_filtrados() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     f = st.session_state.filt
-    return f["Documentacao"], f["Indicadores"], f["Treinamento"]
+    return f["Documentacao"], f["Indicadores"], f["Treinamento"], f["Qualidade"]
 
 
-def dados_filtrados_op() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+def dados_filtrados_op() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     f = st.session_state.filt_op
-    return f["Documentacao"], f["Indicadores"], f["Treinamento"]
+    return f["Documentacao"], f["Indicadores"], f["Treinamento"], f["Qualidade"]
