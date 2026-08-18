@@ -165,7 +165,8 @@ def _fato(aba: str, cfg: dict) -> pd.DataFrame:
     df["ScoreLinha"] = df[subs].apply(lambda r: _score_linha(r.tolist()), axis=1)
 
     cols = ["Frente", cfg["col_item"], "ScoreLinha"] + subs + _COLS_BASE
-    df = df[[c for c in cols if c in df.columns]]
+    cols = list(dict.fromkeys(c for c in cols if c in df.columns))
+    df = df[cols]
     if "Coforme?" in df.columns:
         df = df.rename(columns={"Coforme?": "Conforme?"})
     return df.reset_index(drop=True)

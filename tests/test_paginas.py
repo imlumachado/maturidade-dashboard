@@ -14,6 +14,7 @@ PAGINAS = [
     "pages/3_Treinamento.py",
     "pages/4_Evolução.py",
     "pages/5_Plano_de_ação.py",
+    "pages/6_Qualidade.py",
 ]
 BASE = Path(__file__).resolve().parent.parent / "streamlit"
 

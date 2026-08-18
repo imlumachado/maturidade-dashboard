@@ -69,6 +69,12 @@ def renderizar(
             ("Atualização", "Sub Atualização"),
             ("Conformidade", "Sub Conformidade"),
         ]
+    elif "Sub Abrangência" in subs:
+        labels = [
+            ("Existência", "Sub Existência"),
+            ("Abrangência", "Sub Abrangência"),
+            ("Conformidade", "Sub Conformidade"),
+        ]
     else:
         labels = [
             ("Existência", "Sub Existência"),
