@@ -7,7 +7,15 @@ import plotly.graph_objects as go
 import streamlit as st
 
 from metrics import metricas_frente
-from ui import empty_state, linha_cards, titulo_pagina
+from theme import TEXTO_MUTE, VERDE
+from ui import (
+    aplicar_css,
+    empty_state,
+    header,
+    linha_cards,
+    secao,
+    titulo_pagina,
+)
 
 
 def _fmt_pct(v):
@@ -22,6 +30,20 @@ def _fmt_int(v):
     return str(int(v)) if v is not None else "0"
 
 
+def _layout_fig(height=320):
+    return dict(
+        height=height,
+        yaxis_title="Score (0–100)",
+        yaxis=dict(range=[0, 100], gridcolor="#E5E7EB"),
+        xaxis=dict(gridcolor="rgba(0,0,0,0)"),
+        font=dict(family="Segoe UI", color=TEXTO_MUTE),
+        margin=dict(l=10, r=10, t=20, b=10),
+        legend=dict(orientation="h", y=1.12),
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+    )
+
+
 def renderizar(
     df: pd.DataFrame,
     titulo: str,
@@ -31,6 +53,8 @@ def renderizar(
     cor_frente: str,
     cols_tabela: list[str],
 ):
+    aplicar_css()
+    header(titulo)
     titulo_pagina(titulo, subtitulo)
 
     if df.empty:
@@ -38,13 +62,6 @@ def renderizar(
         return
 
     m = metricas_frente(df, subs)
-    labels = [
-        ("Existência", "Sub Existência"),
-        ("Atualização", "Sub Atualização"),
-        ("Padrão", "Sub Padrão"),
-        ("Conformidade", "Sub Conformidade"),
-    ]
-    # Treinamento usa rótulos diferentes
     if "Sub Coerência" in subs:
         labels = [
             ("Coerência", "Sub Coerência"),
@@ -52,7 +69,15 @@ def renderizar(
             ("Atualização", "Sub Atualização"),
             ("Conformidade", "Sub Conformidade"),
         ]
+    else:
+        labels = [
+            ("Existência", "Sub Existência"),
+            ("Atualização", "Sub Atualização"),
+            ("Padrão", "Sub Padrão"),
+            ("Conformidade", "Sub Conformidade"),
+        ]
 
+    secao("Indicadores-chave")
     cards = [
         {"titulo": f"{titulo} Avaliados", "valor": m["Total"], "cor": cor_frente, "valor_format": _fmt_int},
     ]
@@ -69,8 +94,7 @@ def renderizar(
     cards.append({"titulo": f"Graves ({titulo})", "valor": m["Graves"], "cor": "#E23C3C", "valor_format": _fmt_int})
     linha_cards(cards)
 
-    # Barras por operação
-    st.markdown(f"##### Score {titulo} por Operação")
+    secao(f"Score {titulo} por Operação")
     por_op = df.groupby("Operação")["ScoreLinha"].mean().sort_values(ascending=False).reset_index()
     fig = go.Figure(
         go.Bar(
@@ -81,18 +105,10 @@ def renderizar(
             textposition="outside",
         )
     )
-    fig.update_layout(
-        height=320,
-        yaxis_title="Score (0–100)",
-        yaxis=dict(range=[0, 100]),
-        margin=dict(l=10, r=10, t=20, b=10),
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(0,0,0,0)",
-    )
+    fig.update_layout(**_layout_fig())
     st.plotly_chart(fig, use_container_width=True)
 
-    # Linha de sub-scores (fraquezas)
-    st.markdown("##### Sub-scores por Operação")
+    secao("Sub-scores por Operação")
     fig2 = go.Figure()
     for rotulo, sub in labels:
         serie = df.groupby("Operação")[sub].mean() * 100
@@ -104,19 +120,10 @@ def renderizar(
                 mode="lines+markers",
             )
         )
-    fig2.update_layout(
-        height=320,
-        yaxis_title="Score (0–100)",
-        yaxis=dict(range=[0, 100]),
-        margin=dict(l=10, r=10, t=20, b=10),
-        legend=dict(orientation="h", y=1.12),
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(0,0,0,0)",
-    )
+    fig2.update_layout(**_layout_fig())
     st.plotly_chart(fig2, use_container_width=True)
 
-    # Tabela de detalhe
-    st.markdown("##### Detalhe")
+    secao("Detalhe")
     visiveis = [c for c in cols_tabela if c in df.columns]
     st.dataframe(
         df[visiveis],

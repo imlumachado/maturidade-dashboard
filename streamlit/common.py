@@ -6,6 +6,7 @@ import pandas as pd
 import streamlit as st
 
 from data_loader import carregar_dados as _carregar
+from theme import CINZA_ESCURO, VERDE, BRANCO
 
 _FATOS = ("Documentacao", "Indicadores", "Treinamento")
 
@@ -38,7 +39,19 @@ def preparar_dados() -> None:
     )
 
     with st.sidebar:
-        st.markdown("### Filtros")
+        st.markdown(
+            f"""
+            <style>
+            [data-testid="stSidebar"] > div:first-child {{ background: #ffffff; }}
+            </style>
+            <div style="background:{CINZA_ESCURO};border-radius:12px;padding:14px 16px;margin-bottom:14px;">
+                <div style="font-weight:800;font-size:1.4rem;color:#fff;">dbm<span style="color:{VERDE}">.</span></div>
+                <div style="color:rgba(255,255,255,.7);font-size:.78rem;">Análise de Maturidade</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+        st.markdown("#### Filtros")
         selecao_ops = st.multiselect(
             "Operação",
             ops,
