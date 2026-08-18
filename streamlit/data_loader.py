@@ -177,9 +177,19 @@ def _plano_acao(doc: pd.DataFrame, ind: pd.DataFrame, tre: pd.DataFrame) -> pd.D
     return pa[COLUNAS_PLANO].reset_index(drop=True)
 
 
+def _mtime() -> float:
+    """Data de modificação do formulário — invalida o cache quando a planilha muda."""
+    return FORMULARIO.stat().st_mtime if FORMULARIO.exists() else 0.0
+
+
 @lru_cache(maxsize=1)
-def carregar_dados() -> dict[str, pd.DataFrame]:
-    """Carrega o formulário e devolve as 4 tabelas do modelo."""
+def carregar_dados(mtime: float = 0.0) -> dict[str, pd.DataFrame]:
+    """Carrega o formulário e devolve as 4 tabelas do modelo.
+
+    O parâmetro `mtime` (não usado internamente) faz o cache ser invalidado
+    automaticamente sempre que a planilha for salva.
+    """
+    del mtime
     doc = _fato("Avaliação", _CONFIG["Avaliação"])
     ind = _fato("Indicadores", _CONFIG["Indicadores"])
     tre = _fato("Treinamento", _CONFIG["Treinamento"])

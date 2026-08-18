@@ -105,8 +105,8 @@ def metricas_geral(doc: pd.DataFrame, ind: pd.DataFrame, tre: pd.DataFrame) -> d
     return {
         "Itens Avaliados Total": len(doc) + len(ind) + len(tre),
         "Operações Avaliadas": len(ops),
-        "Data Última Avaliação": datas.max() if not datas.empty else None,
-        "Data Primeira Avaliação": datas.min() if not datas.empty else None,
+        "Data Última Avaliação": datas.max().date() if not datas.empty else None,
+        "Data Primeira Avaliação": datas.min().date() if not datas.empty else None,
         "Graves Total": (
             _conta(doc, "Sub Conformidade", -1.0)
             + _conta(ind, "Sub Conformidade", -1.0)
@@ -192,8 +192,8 @@ def evolucao(doc: pd.DataFrame, ind: pd.DataFrame, tre: pd.DataFrame) -> pd.Data
         linhas.append(
             {
                 "Operação": op,
-                "Data Primeira Avaliação": pd.Timestamp(datas[0]),
-                "Data Última Avaliação": pd.Timestamp(ult),
+                "Data Primeira Avaliação": datas[0],
+                "Data Última Avaliação": ult,
                 "Score Final Último Ciclo": s_ult,
                 "Score Final Ciclo Anterior": s_prev,
                 "Variação": var,

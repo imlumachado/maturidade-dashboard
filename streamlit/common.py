@@ -5,7 +5,7 @@ from __future__ import annotations
 import pandas as pd
 import streamlit as st
 
-from data_loader import carregar_dados as _carregar
+from data_loader import _mtime, carregar_dados as _carregar
 from theme import CINZA_ESCURO, VERDE, BRANCO
 
 _FATOS = ("Documentacao", "Indicadores", "Treinamento")
@@ -13,7 +13,7 @@ _FATOS = ("Documentacao", "Indicadores", "Treinamento")
 
 @st.cache_data(show_spinner="Carregando formulário de maturidade...")
 def _carregar_cache() -> dict:
-    return _carregar()
+    return _carregar(_mtime())
 
 
 def _filtrar_data(df: pd.DataFrame, inicio, fim) -> pd.DataFrame:

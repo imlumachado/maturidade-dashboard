@@ -8,6 +8,7 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "streamlit"))
 
 from data_loader import (  # noqa: E402
+    _mtime,
     _score_linha,
     carregar_dados,
     fn_atualizacao,
@@ -218,7 +219,7 @@ def test_metricas_plano():
 # ---------------------------------------------------------------------------
 @pytest.mark.skipif(not (FORMULARIO / "F_O_025_Formulario_Maturidade_Planos.xlsx").exists(), reason="formulário ausente")
 def test_carregar_dados_real():
-    d = carregar_dados()
+    d = carregar_dados(_mtime())
     assert set(d) == {"Documentacao", "Indicadores", "Treinamento", "PlanoAcao"}
     assert not d["Documentacao"].empty
     assert not (d["Documentacao"]["Operação"] == "Exemplo (apagar)").any()

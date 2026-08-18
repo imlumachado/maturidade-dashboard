@@ -119,9 +119,10 @@ secao("Detalhe das Ações")
 exibir = pa.copy()
 exibir["Status da Ação"] = exibir["Status da Ação"].map(chip_status)
 hoje = pd.Timestamp.today().normalize()
+exibir["Prazo"] = exibir["Prazo"].map(lambda d: d.date() if pd.notna(d) else d)
 vencida = pa["Prazo"].notna() & (pa["Prazo"] < hoje) & (pa["Status da Ação"] != "Concluído")
 exibir.loc[vencida.values, "Prazo"] = exibir.loc[vencida.values, "Prazo"].map(
-    lambda d: f"<span style='color:#E23C3C;font-weight:700'>⚠️ {d.date()}</span>"
+    lambda d: f"<span style='color:#E23C3C;font-weight:700'>⚠️ {d}</span>"
 )
 st.markdown(
     tabela_html(
