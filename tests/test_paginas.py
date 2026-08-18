@@ -8,12 +8,12 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "streamlit"))
 from streamlit.testing.v1 import AppTest  # noqa: E402
 
 PAGINAS = [
-    "app.py",
-    "pages/1_Documentacao.py",
+    "Geral.py",
+    "pages/1_Documentação.py",
     "pages/2_Indicadores.py",
     "pages/3_Treinamento.py",
-    "pages/4_Evolucao.py",
-    "pages/5_Plano_de_Acao.py",
+    "pages/4_Evolução.py",
+    "pages/5_Plano_de_ação.py",
 ]
 BASE = Path(__file__).resolve().parent.parent / "streamlit"
 

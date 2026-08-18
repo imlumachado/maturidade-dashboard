@@ -32,7 +32,7 @@ Fora do escopo desta 1ª versão: aba `Qualidade` do formulário, RLS/autentica�
 python -m venv .venv
 .venv\Scripts\activate
 pip install streamlit pandas plotly openpyxl
-streamlit run streamlit/app.py
+streamlit run streamlit/Geral.py
 ```
 
 ---
@@ -75,8 +75,8 @@ Funções puras que recebem os DataFrames + filtros (operação, data) e devolve
 
 - **Critério de aceite:** uma bateria de testes (`tests/test_metricas.py`) valida cada grupo contra valores calculados à mão e contra a aba `Resumo` do formulário.
 
-### Fase 3 — Interface (páginas) → `app.py` + `pages/`
-- `app.py`: sidebar com filtros de **Operação** (multiselect) e **Data** (date_input range) + navegação; aplica filtros nos DataFrames antes de calcular.
+### Fase 3 — Interface (páginas) → `Geral.py` + `pages/`
+- `Geral.py`: sidebar com filtros de **Operação** (multiselect) e **Data** (date_input range) + navegação; aplica filtros nos DataFrames antes de calcular.
 - Páginas equivalentes ao guia (4.3):
   1. **Visão Geral** — cards KPI (Score Final Último Ciclo + Faixa, Operações Avaliadas, Ações Vencidas), cards de alerta (Itens/Graves/Não Conformes/Negativos), barras agrupadas por operação (3 frentes), tabela de ranking com variação/evolução.
   2. **Documentação** — KPIs e % (existência/atualização/padrão/conformidade), barras por operação, linha de sub-scores, tabela detalhe.
@@ -99,7 +99,7 @@ Funções puras que recebem os DataFrames + filtros (operação, data) e devolve
 6. Plano de ação: vencidas/a vencer calculadas contra a data de hoje.
 
 ### Fase 6 — Apresentação
-- Executar local: `streamlit run streamlit/app.py` (opcional `--server.headless true`).
+- Executar local: `streamlit run streamlit/Geral.py` (opcional `--server.headless true`).
 - (Opcional) publicar no **Streamlit Community Cloud** conectando o repositório Git e subindo o xlsx junto (o arquivo já é fonte fixa no repositório).
 
 ---
@@ -111,7 +111,7 @@ maturidade-dashboard/
 ├── formulario/
 │   └── F_O_025_Formulario_Maturidade_Planos.xlsx   # fonte de dados
 ├── streamlit/
-│   ├── app.py                  # entrada: filtros globais + navegação
+│   ├── Geral.py                  # entrada: filtros globais + navegação
 │   ├── data_loader.py          # leitura do Excel + ETL (Fase 1)
 │   ├── metrics.py              # cálculos/medidas (Fase 2)
 │   ├── ui.py                   # helpers de cards/gráficos/cores
