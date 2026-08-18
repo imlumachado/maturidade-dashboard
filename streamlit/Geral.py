@@ -63,7 +63,9 @@ geral = metricas_geral(doc, ind, tre)
 score_ultimo = ultimo_ciclo_global(doc_op, ind_op, tre_op)
 faixa = faixa_maturidade(score_ultimo)
 metricas_pa = {
-    "Vencidas": int((plano["Prazo"] < pd.Timestamp.today().normalize()) & (plano["Status da Ação"] != "Concluído")).sum()
+    "Vencidas": int(
+        ((plano["Prazo"] < pd.Timestamp.today().normalize()) & (plano["Status da Ação"] != "Concluído")).sum()
+    )
     if not plano.empty
     else 0
 }
