@@ -1,0 +1,254 @@
+// ============================================================================
+// MEDIDAS DAX — ANÁLISE DE MATURIDADE (FASE 2 COMPLETA)
+// Criar em: Modelo > Nova medida. Copie cada bloco "#### ..." como uma medida.
+// Recomendado: crie uma tabela "Medidas" vazia (Página Inicial > Nova tabela,
+// expressão = ROW("Controle", 1), marque "Ocultar") e deposite as medidas nela.
+// ============================================================================
+
+
+
+// ============================================================================
+// PARTE B — SCORES POR FRENTE (0 a 100, pode ser negativo por débito de pontos)
+// ============================================================================
+
+"Score Documentação" =
+    AVERAGE(Documentacao[ScoreLinha])
+
+"Score Indicadores" =
+    AVERAGE(Indicadores[ScoreLinha])
+
+"Score Treinamento" =
+    AVERAGE(Treinamento[ScoreLinha])
+
+
+
+// ============================================================================
+// PARTE C — SCORE FINAL DA OPERAÇÃO + FAIXA DE MATURIDADE
+// Score Final = MÉDIA dos 3 scores das frentes avaliadas (nunca passa de 100).
+// Frentes sem avaliação (sem linhas ou sem respostas) não entram no cálculo.
+// ============================================================================
+
+"Score Final Operação" =
+VAR Doc = [Score Documentação]
+VAR Ind = [Score Indicadores]
+VAR Tre = [Score Treinamento]
+VAR NFrentes =
+      (0 + NOT ISBLANK(Doc))
+    + (0 + NOT ISBLANK(Ind))
+    + (0 + NOT ISBLANK(Tre))
+RETURN
+    DIVIDE(COALESCE(Doc, 0) + COALESCE(Ind, 0) + COALESCE(Tre, 0), NFrentes, BLANK())
+
+"Faixa de Maturidade" =
+VAR S = [Score Final Operação]
+RETURN
+    SWITCH(TRUE(),
+        S <= 25, "Baixíssima maturidade",
+        S <= 35, "Baixa maturidade",
+        S <= 75, "Maturidade intermediária",
+        S <= 85, "Boa maturidade",
+        S >= 0,  "Excelente maturidade",
+        BLANK())
+
+"Classificação da Operação" =
+RANKX(ALL(Operacao[Operação]), [Score Final Último Ciclo], , DESC, Dense)
+
+
+
+// ============================================================================
+// PARTE D — CONTADORES E PERCENTUAIS POR FRENTE
+// ============================================================================
+
+// ---------- Documentação ----------
+"Documentos Avaliados"     = COUNTROWS(Documentacao)
+"Documentos Existentes"    = CALCULATE(COUNTROWS(Documentacao), Documentacao[Sub Existência] = 1)
+"Documentos Atualizados"   = CALCULATE(COUNTROWS(Documentacao), Documentacao[Sub Atualização] = 1)
+"Documentos no Padrão"     = CALCULATE(COUNTROWS(Documentacao), Documentacao[Sub Padrão] = 1)
+"Documentos Conformes"     = CALCULATE(COUNTROWS(Documentacao), Documentacao[Sub Conformidade] = 1)
+
+"% Existência Doc"   = DIVIDE([Documentos Existentes],  [Documentos Avaliados])
+"% Atualização Doc"  = DIVIDE([Documentos Atualizados], [Documentos Avaliados])
+"% Padrão Doc"       = DIVIDE([Documentos no Padrão],   [Documentos Avaliados])
+"% Conformidade Doc" = DIVIDE([Documentos Conformes],   [Documentos Avaliados])
+
+// ---------- Indicadores ----------
+"Indicadores Avaliados"  = COUNTROWS(Indicadores)
+"Indicadores Existentes" = CALCULATE(COUNTROWS(Indicadores), Indicadores[Sub Existência] = 1)
+"Indicadores no Padrão"  = CALCULATE(COUNTROWS(Indicadores), Indicadores[Sub Padrão] = 1)
+"Indicadores Conformes"  = CALCULATE(COUNTROWS(Indicadores), Indicadores[Sub Conformidade] = 1)
+
+"% Existência Ind"  = DIVIDE([Indicadores Existentes], [Indicadores Avaliados])
+"% Padrão Ind"      = DIVIDE([Indicadores no Padrão],  [Indicadores Avaliados])
+"% Conformidade Ind"= DIVIDE([Indicadores Conformes],  [Indicadores Avaliados])
+
+// ---------- Treinamento ----------
+"Treinamentos Avaliados"    = COUNTROWS(Treinamento)
+"Treinamentos Coerentes"    = CALCULATE(COUNTROWS(Treinamento), Treinamento[Sub Coerência] = 1)
+"Treinamentos Aplicados"    = CALCULATE(COUNTROWS(Treinamento), Treinamento[Sub Aplicação] = 1)
+"Treinamentos Atualizados"  = CALCULATE(COUNTROWS(Treinamento), Treinamento[Sub Atualização] = 1)
+"Treinamentos Conformes"    = CALCULATE(COUNTROWS(Treinamento), Treinamento[Sub Conformidade] = 1)
+
+"% Coerência Tre"   = DIVIDE([Treinamentos Coerentes],   [Treinamentos Avaliados])
+"% Aplicação Tre"   = DIVIDE([Treinamentos Aplicados],   [Treinamentos Avaliados])
+"% Atualização Tre" = DIVIDE([Treinamentos Atualizados], [Treinamentos Avaliados])
+"% Conformidade Tre"= DIVIDE([Treinamentos Conformes],   [Treinamentos Avaliados])
+
+
+
+// ============================================================================
+// PARTE E — SUB-SCORES POR FRENTE (0 a 100)
+// Usar em matriz para achar FRAQUEZAS: linha = Operação, coluna = sub-score.
+// ============================================================================
+
+// ---------- Documentação ----------
+"Score Existência (Doc)"  = AVERAGE(Documentacao[Sub Existência])  * 100
+"Score Atualização (Doc)" = AVERAGE(Documentacao[Sub Atualização]) * 100
+"Score Padrão (Doc)"      = AVERAGE(Documentacao[Sub Padrão])      * 100
+"Score Conformidade (Doc)"= AVERAGE(Documentacao[Sub Conformidade])* 100
+
+// ---------- Indicadores ----------
+"Score Existência (Ind)"  = AVERAGE(Indicadores[Sub Existência])  * 100
+"Score Atualização (Ind)" = AVERAGE(Indicadores[Sub Atualização]) * 100
+"Score Padrão (Ind)"      = AVERAGE(Indicadores[Sub Padrão])      * 100
+"Score Conformidade (Ind)"= AVERAGE(Indicadores[Sub Conformidade])* 100
+
+// ---------- Treinamento ----------
+"Score Coerência (Tre)"   = AVERAGE(Treinamento[Sub Coerência])   * 100
+"Score Aplicação (Tre)"   = AVERAGE(Treinamento[Sub Aplicação])   * 100
+"Score Atualização (Tre)" = AVERAGE(Treinamento[Sub Atualização]) * 100
+"Score Conformidade (Tre)"= AVERAGE(Treinamento[Sub Conformidade])* 100
+
+
+
+// ============================================================================
+// PARTE F — ONDE ESTÃO AS FRAQUEZAS (contagens de não conformidade)
+// ============================================================================
+
+// ---------- Documentação ----------
+"Graves (Documentação)"   = CALCULATE(COUNTROWS(Documentacao), Documentacao[Sub Conformidade] = -1)
+"Não Conformes (Documentação)" = CALCULATE(COUNTROWS(Documentacao), Documentacao[Sub Conformidade] = 0)
+"Conformes (Documentação)" = CALCULATE(COUNTROWS(Documentacao), Documentacao[Sub Conformidade] = 1)
+"Itens Negativos (Documentação)" = CALCULATE(COUNTROWS(Documentacao), Documentacao[ScoreLinha] < 0)
+"% Graves (Documentação)" = DIVIDE([Graves (Documentação)], [Documentos Avaliados])
+
+// ---------- Indicadores ----------
+"Graves (Indicadores)" = CALCULATE(COUNTROWS(Indicadores), Indicadores[Sub Conformidade] = -1)
+"Não Conformes (Indicadores)" = CALCULATE(COUNTROWS(Indicadores), Indicadores[Sub Conformidade] = 0)
+"Conformes (Indicadores)" = CALCULATE(COUNTROWS(Indicadores), Indicadores[Sub Conformidade] = 1)
+"Itens Negativos (Indicadores)" = CALCULATE(COUNTROWS(Indicadores), Indicadores[ScoreLinha] < 0)
+"% Graves (Indicadores)" = DIVIDE([Graves (Indicadores)], [Indicadores Avaliados])
+
+// ---------- Treinamento ----------
+"Graves (Treinamento)" = CALCULATE(COUNTROWS(Treinamento), Treinamento[Sub Conformidade] = -1)
+"Não Conformes (Treinamento)" = CALCULATE(COUNTROWS(Treinamento), Treinamento[Sub Conformidade] = 0)
+"Conformes (Treinamento)" = CALCULATE(COUNTROWS(Treinamento), Treinamento[Sub Conformidade] = 1)
+"Itens Negativos (Treinamento)" = CALCULATE(COUNTROWS(Treinamento), Treinamento[ScoreLinha] < 0)
+"% Graves (Treinamento)" = DIVIDE([Graves (Treinamento)], [Treinamentos Avaliados])
+
+
+
+// ============================================================================
+// PARTE G — EVOLUÇÃO ENTRE CICLOS DE AVALIAÇÃO
+// "Último Ciclo" ignora filtros de data: mostra o ciclo mais recente de cada
+// operação. Use em matriz por Operação para ver a evolução entre análises.
+// ============================================================================
+
+"Data Última Avaliação" =
+VAR DatasAv = UNION(
+    DISTINCT(Documentacao[Data da avaliação]),
+    DISTINCT(Indicadores[Data da avaliação]),
+    DISTINCT(Treinamento[Data da avaliação])
+)
+RETURN MAXX(DatasAv, [Data da avaliação])
+
+"Data Primeira Avaliação" =
+VAR DatasAv = UNION(
+    DISTINCT(Documentacao[Data da avaliação]),
+    DISTINCT(Indicadores[Data da avaliação]),
+    DISTINCT(Treinamento[Data da avaliação])
+)
+RETURN MINX(DatasAv, [Data da avaliação])
+
+"Dias desde a Última Avaliação" =
+DATEDIFF([Data Última Avaliação], TODAY(), DAY)
+
+"Score Final Último Ciclo" =
+VAR DatasAv = UNION(
+    DISTINCT(Documentacao[Data da avaliação]),
+    DISTINCT(Indicadores[Data da avaliação]),
+    DISTINCT(Treinamento[Data da avaliação])
+)
+VAR DataUlt = MAXX(DatasAv, [Data da avaliação])
+RETURN
+    IF(ISBLANK(DataUlt), BLANK(),
+        CALCULATE([Score Final Operação], REMOVEFILTERS(Calendario), Calendario[Data] = DataUlt))
+
+"Score Final Ciclo Anterior" =
+VAR DatasAv = UNION(
+    DISTINCT(Documentacao[Data da avaliação]),
+    DISTINCT(Indicadores[Data da avaliação]),
+    DISTINCT(Treinamento[Data da avaliação])
+)
+VAR DataUlt = MAXX(DatasAv, [Data da avaliação])
+VAR DataAnterior = MAXX(FILTER(DatasAv, [Data da avaliação] < DataUlt), [Data da avaliação])
+RETURN
+    IF(ISBLANK(DataAnterior), BLANK(),
+        CALCULATE([Score Final Operação], REMOVEFILTERS(Calendario), Calendario[Data] = DataAnterior))
+
+"Variação vs Ciclo Anterior" =
+[Score Final Último Ciclo] - [Score Final Ciclo Anterior]
+
+"Evolução" =
+SWITCH(TRUE(),
+    ISBLANK([Variação vs Ciclo Anterior]), BLANK(),
+    [Variação vs Ciclo Anterior] > 0, "▲ Melhorou",
+    [Variação vs Ciclo Anterior] < 0, "▼ Piorou",
+    "➖ Estável")
+
+
+
+// ============================================================================
+// PARTE H — PLANO DE AÇÃO
+// ============================================================================
+
+"Ações de Plano de Ação" = COUNTROWS(PlanoAcao)
+"Ações Abertas"      = CALCULATE(COUNTROWS(PlanoAcao), PlanoAcao[Status da Ação] = "Aberto")
+"Ações Em Andamento" = CALCULATE(COUNTROWS(PlanoAcao), PlanoAcao[Status da Ação] = "Em andamento")
+"Ações Concluídas"   = CALCULATE(COUNTROWS(PlanoAcao), PlanoAcao[Status da Ação] = "Concluído")
+"Ações Vencidas"     = CALCULATE(COUNTROWS(PlanoAcao),
+                        PlanoAcao[Prazo] < TODAY(),
+                        PlanoAcao[Status da Ação] <> "Concluído")
+"Ações a Vencer (30 dias)" = CALCULATE(COUNTROWS(PlanoAcao),
+                        PlanoAcao[Prazo] >= TODAY(),
+                        PlanoAcao[Prazo] <= TODAY() + 30,
+                        PlanoAcao[Status da Ação] <> "Concluído")
+"% Ações Concluídas" = DIVIDE([Ações Concluídas], [Ações de Plano de Ação])
+
+
+
+// ============================================================================
+// PARTE I — AGREGADOS DA VISÃO GERAL (cruzam as 3 frentes)
+// ============================================================================
+
+"Itens Avaliados Total" =
+COUNTROWS(Documentacao) + COUNTROWS(Indicadores) + COUNTROWS(Treinamento)
+
+"Operações Avaliadas" =
+COUNTROWS(
+    DISTINCT(
+        UNION(
+            DISTINCT(Documentacao[Operação]),
+            DISTINCT(Indicadores[Operação]),
+            DISTINCT(Treinamento[Operação])
+        )
+    )
+)
+
+"Graves Total" =
+[Graves (Documentação)] + [Graves (Indicadores)] + [Graves (Treinamento)]
+
+"Não Conformes Total" =
+[Não Conformes (Documentação)] + [Não Conformes (Indicadores)] + [Não Conformes (Treinamento)]
+
+"Itens Negativos Total" =
+[Itens Negativos (Documentação)] + [Itens Negativos (Indicadores)] + [Itens Negativos (Treinamento)]

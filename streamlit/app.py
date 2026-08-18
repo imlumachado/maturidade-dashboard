@@ -1,0 +1,135 @@
+# -*- coding: utf-8 -*-
+"""Dashboard de Análise de Maturidade — Página Visão Geral."""
+import pandas as pd
+import plotly.graph_objects as go
+import streamlit as st
+
+st.set_page_config(
+    page_title="Análise de Maturidade",
+    page_icon="📊",
+    layout="wide",
+    initial_sidebar_state="expanded",
+)
+
+from common import dados_filtrados, dados_filtrados_op, preparar_dados
+from metrics import (
+    evolucao,
+    faixa_maturidade,
+    metricas_geral,
+    scores_por_operacao,
+    ultimo_ciclo_global,
+)
+from theme import cor_faixa, cor_score, CORES_FRENTES
+from ui import chip_evolucao, chip_faixa, empty_state, linha_cards, titulo_pagina
+
+
+def _fmt_pct(v):
+    return f"{v:.0f}%" if v is not None else "—"
+
+
+def _fmt_score(v):
+    return f"{v:.1f}" if v is not None else "—"
+
+
+def _fmt_int(v):
+    return str(int(v)) if v is not None else "0"
+
+
+preparar_dados()
+doc, ind, tre = dados_filtrados()
+doc_op, ind_op, tre_op = dados_filtrados_op()
+plano = st.session_state.plano
+
+titulo_pagina("Visão Geral", "Análise de Maturidade em Processos")
+
+if doc.empty and ind.empty and tre.empty:
+    empty_state("Nenhum dado para os filtros selecionados.")
+    st.stop()
+
+geral = metricas_geral(doc, ind, tre)
+score_ultimo = ultimo_ciclo_global(doc_op, ind_op, tre_op)
+faixa = faixa_maturidade(score_ultimo)
+metricas_pa = {
+    "Vencidas": int((plano["Prazo"] < pd.Timestamp.today().normalize()) & (plano["Status da Ação"] != "Concluído")).sum()
+    if not plano.empty
+    else 0
+}
+
+linha_cards(
+    [
+        {"titulo": "Score Final Último Ciclo", "valor": score_ultimo, "sub": faixa or "", "cor": cor_faixa(faixa), "valor_format": _fmt_score},
+        {"titulo": "Operações Avaliadas", "valor": geral["Operações Avaliadas"], "cor": "#02DE81", "valor_format": _fmt_int},
+        {"titulo": "Ações Vencidas", "valor": metricas_pa["Vencidas"], "cor": "#E23C3C", "valor_format": _fmt_int},
+        {"titulo": "Data Última Avaliação", "valor": geral["Data Última Avaliação"], "cor": "#212121"},
+    ]
+)
+
+st.markdown("##### Alertas")
+linha_cards(
+    [
+        {"titulo": "Itens Avaliados Total", "valor": geral["Itens Avaliados Total"], "cor": "#212121", "valor_format": _fmt_int},
+        {"titulo": "Graves Total", "valor": geral["Graves Total"], "cor": "#E23C3C", "valor_format": _fmt_int},
+        {"titulo": "Não Conformes Total", "valor": geral["Não Conformes Total"], "cor": "#F59E0B", "valor_format": _fmt_int},
+        {"titulo": "Itens Negativos Total", "valor": geral["Itens Negativos Total"], "cor": "#FACC15", "valor_format": _fmt_int},
+    ]
+)
+
+st.markdown("##### Scores por Operação e Frente")
+scores = scores_por_operacao(doc, ind, tre)
+if not scores.empty:
+    fig = go.Figure()
+    for frente in ("Documentação", "Indicadores", "Treinamento"):
+        fig.add_trace(
+            go.Bar(
+                name=frente,
+                x=scores["Operação"],
+                y=scores[frente].fillna(0),
+                marker_color=CORES_FRENTES[frente],
+                text=[f"{v:.0f}" if pd.notna(v) else "" for v in scores[frente]],
+                textposition="outside",
+            )
+        )
+    fig.add_trace(
+        go.Scatter(
+            name="Score Final",
+            x=scores["Operação"],
+            y=scores["Score Final"],
+            mode="lines+markers",
+            line=dict(color="#212121", width=3),
+        )
+    )
+    fig.update_layout(
+        barmode="group",
+        height=380,
+        yaxis_title="Score (0–100)",
+        yaxis=dict(range=[0, 100]),
+        margin=dict(l=10, r=10, t=30, b=10),
+        legend=dict(orientation="h", y=1.12),
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+    )
+    st.plotly_chart(fig, use_container_width=True)
+else:
+    empty_state()
+
+st.markdown("##### Ranking das Operações (último ciclo vs anterior)")
+evol = evolucao(doc_op, ind_op, tre_op)
+if not evol.empty:
+    evol_display = evol.copy()
+    evol_display["Faixa"] = evol_display["Faixa"].map(chip_faixa)
+    evol_display["Evolução"] = evol_display["Evolução"].map(chip_evolucao)
+    st.markdown(
+        evol_display[
+            [
+                "Operação",
+                "Score Final Último Ciclo",
+                "Faixa",
+                "Score Final Ciclo Anterior",
+                "Variação",
+                "Evolução",
+            ]
+        ].to_html(escape=False, index=False, float_format=lambda v: f"{v:.1f}"),
+        unsafe_allow_html=True,
+    )
+else:
+    empty_state()
