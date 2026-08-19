@@ -38,10 +38,10 @@ CSS = f"""
         padding-top: 1.4rem;
         padding-bottom: 3rem;
         max-width: 1400px;
-        animation: pageFade .35s ease both;
+        animation: pageFade .55s cubic-bezier(.25,.1,.25,1) both;
     }}
     @keyframes pageFade {{
-        from {{ opacity: 0; transform: translateY(6px); }}
+        from {{ opacity: 0; transform: translateY(10px); }}
         to {{ opacity: 1; transform: translateY(0); }}
     }}
     h1, h2, h3, h4, h5, h6 {{
@@ -93,7 +93,7 @@ CSS = f"""
         padding: 9px 14px;
         border-radius: 9px;
         border: 1px solid transparent;
-        transition: background-color .25s ease, color .25s ease, transform .15s ease, box-shadow .25s ease;
+        transition: background-color .3s ease, color .3s ease, transform .2s ease, box-shadow .3s ease;
         white-space: nowrap;
     }}
     .dbm-nav .stButton > button:hover {{
@@ -149,7 +149,7 @@ CSS = f"""
         padding: 20px 22px;
         height: 100%;
         box-shadow: 0 1px 4px rgba(15,23,42,.05);
-        transition: box-shadow .2s ease, transform .2s ease, border-color .2s ease;
+        transition: box-shadow .25s ease, transform .25s ease, border-color .25s ease;
     }}
     .dbm-card:hover {{
         box-shadow: 0 6px 20px rgba(15,23,42,.09);
@@ -248,6 +248,34 @@ CSS = f"""
     section[data-testid="stSidebar"] .stMarkdown h3 {{
         color: {PRETO};
     }}
+    [data-testid="stSidebarCollapseButton"] span {{
+        font-family: "Segoe UI", -apple-system, sans-serif !important;
+        font-size: 0 !important;
+        visibility: hidden;
+    }}
+    [data-testid="stSidebarCollapseButton"] span::after {{
+        content: "‹";
+        font-family: "Segoe UI", -apple-system, sans-serif !important;
+        font-size: 18px !important;
+        font-weight: 700;
+        color: {TEXTO_MUTE};
+        visibility: visible;
+        line-height: 1;
+    }}
+    [data-testid="stSidebarControlButton"] span {{
+        font-family: "Segoe UI", -apple-system, sans-serif !important;
+        font-size: 0 !important;
+        visibility: hidden;
+    }}
+    [data-testid="stSidebarControlButton"] span::after {{
+        content: "›";
+        font-family: "Segoe UI", -apple-system, sans-serif !important;
+        font-size: 18px !important;
+        font-weight: 700;
+        color: {TEXTO_MUTE};
+        visibility: visible;
+        line-height: 1;
+    }}
 
     /* ===== Tabelas HTML ===== */
     .dbm-table {{
@@ -320,12 +348,8 @@ def navegacao(atual: str = "") -> None:
             if arquivo == atual:
                 st.markdown(f'<div class="dbm-nav-item">{nome}</div>', unsafe_allow_html=True)
             else:
-                st.button(
-                    nome,
-                    key=f"nav_{arquivo}",
-                    on_click=lambda p=arquivo: st.switch_page(p),
-                    use_container_width=True,
-                )
+                if st.button(nome, key=f"nav_{arquivo}", use_container_width=True):
+                    st.switch_page(arquivo)
 
 
 def header(pagina: str, subtitulo: str = "") -> None:
