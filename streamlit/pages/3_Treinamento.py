@@ -19,6 +19,7 @@ renderizar(
     subs=SUB_TRE,
     col_item="Nome_Treinamento",
     cor_frente=CORES_FRENTES["Treinamento"],
+    arquivo="pages/3_Treinamento.py",
     cols_tabela=[
         "Operação",
         "Processo avaliado",

@@ -19,6 +19,7 @@ renderizar(
     subs=SUB_IND,
     col_item="Nome_Indicador",
     cor_frente=CORES_FRENTES["Indicadores"],
+    arquivo="pages/2_Indicadores.py",
     cols_tabela=[
         "Operação",
         "Processo avaliado",

@@ -28,6 +28,7 @@ from ui import (
     empty_state,
     header,
     linha_cards,
+    navegacao,
     secao,
     tabela_html,
     titulo_pagina,
@@ -52,7 +53,8 @@ doc_op, ind_op, tre_op, qua_op = dados_filtrados_op()
 plano = st.session_state.plano
 
 aplicar_css()
-header("Visão Geral")
+navegacao("Geral.py")
+header("Visão Geral", "Análise de Maturidade em Processos")
 titulo_pagina("Visão Geral", "Análise de Maturidade em Processos")
 
 if doc.empty and ind.empty and tre.empty and qua.empty:
@@ -73,20 +75,25 @@ metricas_pa = {
 secao("Indicadores-chave")
 linha_cards(
     [
-        {"titulo": "Score Final", "valor": score_ultimo, "sub": faixa or "", "cor": VERDE, "valor_format": _fmt_score},
-        {"titulo": "Operações Avaliadas", "valor": geral["Operações Avaliadas"], "cor": VERDE, "valor_format": _fmt_int},
-        {"titulo": "Ações Vencidas", "valor": metricas_pa["Vencidas"], "cor": "#E23C3C", "valor_format": _fmt_int},
-        {"titulo": "Data Última Avaliação", "valor": geral["Data Última Avaliação"], "cor": PRETO},
+        {
+            "titulo": "Score Final",
+            "valor": score_ultimo,
+            "sub": faixa or "",
+            "cor": VERDE,
+            "valor_format": _fmt_score,
+            "tooltip": f"Operações avaliadas: <b>{geral['Operações Avaliadas']}</b><br>Ações vencidas: <b>{metricas_pa['Vencidas']}</b>",
+        },
     ]
 )
+st.caption("Passe o cursor sobre o card para ver operações avaliadas e ações vencidas.")
 
 secao("Alertas")
 linha_cards(
     [
         {"titulo": "Itens Avaliados Total", "valor": geral["Itens Avaliados Total"], "cor": PRETO, "valor_format": _fmt_int},
-        {"titulo": "Graves Total", "valor": geral["Graves Total"], "cor": "#E23C3C", "valor_format": _fmt_int},
+        {"titulo": "Graves Total", "valor": geral["Graves Total"], "cor": "#DC2626", "valor_format": _fmt_int},
         {"titulo": "Não Conformes Total", "valor": geral["Não Conformes Total"], "cor": "#F59E0B", "valor_format": _fmt_int},
-        {"titulo": "Itens Negativos Total", "valor": geral["Itens Negativos Total"], "cor": "#FACC15", "valor_format": _fmt_int},
+        {"titulo": "Itens Negativos Total", "valor": geral["Itens Negativos Total"], "cor": "#EAB308", "valor_format": _fmt_int},
     ]
 )
 
@@ -118,7 +125,7 @@ if not scores.empty:
         barmode="group",
         height=380,
         yaxis_title="Score (0–100)",
-        yaxis=dict(range=[0, 100], gridcolor="#E5E7EB"),
+        yaxis=dict(range=[0, 100], gridcolor="#E2E8F0"),
         xaxis=dict(gridcolor="rgba(0,0,0,0)"),
         font=dict(family="Segoe UI", color=TEXTO_MUTE),
         margin=dict(l=10, r=10, t=30, b=10),
@@ -126,7 +133,7 @@ if not scores.empty:
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 else:
     empty_state()
 

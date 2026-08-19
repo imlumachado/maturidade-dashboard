@@ -19,6 +19,7 @@ renderizar(
     subs=SUB_QUA,
     col_item="Processo avaliado",
     cor_frente=CORES_FRENTES["Qualidade"],
+    arquivo="pages/6_Qualidade.py",
     cols_tabela=[
         "Operação",
         "Processo avaliado",

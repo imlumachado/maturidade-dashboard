@@ -19,6 +19,7 @@ renderizar(
     subs=SUB_DOC,
     col_item="Nome_Documento",
     cor_frente=CORES_FRENTES["Documentação"],
+    arquivo="pages/1_Documentação.py",
     cols_tabela=[
         "Operação",
         "Processo avaliado",

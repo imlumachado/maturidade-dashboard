@@ -15,6 +15,7 @@ from ui import (
     chip_faixa,
     empty_state,
     header,
+    navegacao,
     secao,
     tabela_html,
     titulo_pagina,
@@ -24,7 +25,8 @@ preparar_dados()
 doc, ind, tre, qua = dados_filtrados_op()
 
 aplicar_css()
-header("Evolução")
+navegacao("pages/4_Evolução.py")
+header("Evolução", "Score final ao longo dos ciclos de avaliação (ignora o filtro de período).")
 titulo_pagina(
     "Evolução",
     "Score final ao longo dos ciclos de avaliação (ignora o filtro de período).",
@@ -51,7 +53,7 @@ if not serie.empty:
     fig.update_layout(
         height=420,
         yaxis_title="Score (0–100)",
-        yaxis=dict(range=[0, 100], gridcolor="#E5E7EB"),
+        yaxis=dict(range=[0, 100], gridcolor="#E2E8F0"),
         xaxis=dict(gridcolor="rgba(0,0,0,0)"),
         font=dict(family="Segoe UI", color=TEXTO_MUTE),
         margin=dict(l=10, r=10, t=20, b=10),
@@ -59,7 +61,7 @@ if not serie.empty:
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 else:
     empty_state()
 

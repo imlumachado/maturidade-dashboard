@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-"""Helpers de interface — visual inspirado no site da dbm.
+"""Helpers de interface — visual corporativo refinado.
 
-Header com wordmark "dbm", CSS global, cards minimalistas com acento verde,
-chips coloridos e tabelas estilizadas.
+Header limpo, navegação superior com fade na troca de página, cards
+minimalistas com acento verde, chips coloridos e tabelas estilizadas.
 """
 from __future__ import annotations
 
@@ -19,6 +19,8 @@ from theme import (
     PRETO,
     TEXTO_MUTE,
     VERDE,
+    VERDE_CLARO,
+    VERDE_ESCURO,
     cor_faixa,
     cor_score,
     cor_status,
@@ -33,70 +35,93 @@ CSS = f"""
         background-color: {FUNDO};
     }}
     .block-container {{
-        padding-top: 1.2rem;
+        padding-top: 1.4rem;
         padding-bottom: 3rem;
         max-width: 1400px;
+        animation: pageFade .35s ease both;
+    }}
+    @keyframes pageFade {{
+        from {{ opacity: 0; transform: translateY(6px); }}
+        to {{ opacity: 1; transform: translateY(0); }}
     }}
     h1, h2, h3, h4, h5, h6 {{
         font-family: "Segoe UI", -apple-system, sans-serif !important;
         color: {PRETO} !important;
+        letter-spacing: -0.01em;
     }}
     p, span, div, label, .stMarkdown, .stDataFrame {{
         font-family: "Segoe UI", -apple-system, sans-serif !important;
     }}
 
-    /* ===== Header dbm ===== */
-    .dbm-header {{
-        background: {CINZA_ESCURO};
-        border-radius: 14px;
-        padding: 18px 28px;
-        margin-bottom: 26px;
+    /* ===== Header ===== */
+    .app-header {{
         display: flex;
-        align-items: center;
+        align-items: flex-end;
         justify-content: space-between;
         flex-wrap: wrap;
         gap: 12px;
-        box-shadow: 0 4px 14px rgba(0,0,0,.10);
+        margin-bottom: 18px;
+        padding-bottom: 14px;
+        border-bottom: 1px solid {BORDA};
     }}
-    .dbm-brand {{
-        display: flex;
-        align-items: center;
-        gap: 16px;
-    }}
-    .dbm-wordmark {{
-        font-family: "Segoe UI", sans-serif;
-        font-size: 2.1rem;
+    .app-header h1 {{
+        font-size: 1.65rem;
         font-weight: 800;
-        letter-spacing: .5px;
-        color: {BRANCO};
-        line-height: 1;
+        margin: 0;
+        letter-spacing: -0.02em;
     }}
-    .dbm-wordmark span {{
-        color: {VERDE};
+    .app-header .app-header-sub {{
+        color: {TEXTO_MUTE};
+        font-size: .92rem;
+        margin-top: 2px;
     }}
-    .dbm-brand-divider {{
-        width: 1px;
-        height: 34px;
-        background: rgba(255,255,255,.25);
+
+    /* ===== Navegação ===== */
+    .dbm-nav {{
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-bottom: 24px;
+        padding: 8px;
+        background: {BRANCO};
+        border: 1px solid {BORDA};
+        border-radius: 14px;
+        box-shadow: 0 1px 3px rgba(15,23,42,.05);
     }}
-    .dbm-title {{
-        color: {BRANCO};
-        font-size: 1.15rem;
-        font-weight: 600;
-        line-height: 1.15;
+    .dbm-nav .stButton {{
+        flex: 1 1 auto;
     }}
-    .dbm-sub {{
-        color: rgba(255,255,255,.7);
+    .dbm-nav .stButton > button {{
+        width: 100%;
+        text-align: center;
+        background: transparent;
+        color: {TEXTO_MUTE};
         font-size: .82rem;
+        font-weight: 600;
+        padding: 8px 12px;
+        border-radius: 9px;
+        border: 1px solid transparent;
+        transition: background-color .25s ease, color .25s ease, transform .15s ease, box-shadow .25s ease;
+        white-space: nowrap;
     }}
-    .dbm-tag {{
+    .dbm-nav .stButton > button:hover {{
+        background: {VERDE_CLARO};
+        color: {VERDE_ESCURO};
+        transform: translateY(-1px);
+    }}
+    .dbm-nav .stButton > button:focus {{
+        box-shadow: none;
+    }}
+    .dbm-nav-item {{
+        flex: 1 1 auto;
+        text-align: center;
         background: {VERDE};
-        color: {PRETO};
+        color: {BRANCO};
+        font-size: .82rem;
         font-weight: 700;
-        font-size: .78rem;
-        padding: 6px 14px;
-        border-radius: 999px;
-        letter-spacing: .04em;
+        padding: 9px 12px;
+        border-radius: 9px;
+        box-shadow: 0 2px 6px rgba(5,150,105,.35);
         white-space: nowrap;
     }}
 
@@ -105,18 +130,18 @@ CSS = f"""
         margin-bottom: 20px;
     }}
     .page-head h1 {{
-        font-size: 1.7rem;
+        font-size: 1.55rem;
         font-weight: 800;
         margin: 0;
     }}
     .page-head .page-head-sub {{
         color: {TEXTO_MUTE};
-        font-size: .95rem;
+        font-size: .92rem;
         margin-top: 2px;
     }}
     .page-head .page-head-rule {{
-        height: 4px;
-        width: 56px;
+        height: 3px;
+        width: 52px;
         background: {VERDE};
         border-radius: 999px;
         margin-top: 10px;
@@ -124,37 +149,45 @@ CSS = f"""
 
     /* ===== Cards KPI ===== */
     .dbm-card {{
+        position: relative;
         background: {BRANCO};
         border: 1px solid {BORDA};
         border-radius: 14px;
-        padding: 18px 20px;
+        padding: 20px 22px;
         height: 100%;
-        box-shadow: 0 1px 3px rgba(17,17,17,.06);
+        box-shadow: 0 1px 4px rgba(15,23,42,.05);
+        transition: box-shadow .2s ease, transform .2s ease, border-color .2s ease;
+    }}
+    .dbm-card:hover {{
+        box-shadow: 0 6px 20px rgba(15,23,42,.09);
+        transform: translateY(-2px);
+        border-color: #BFDBFE;
     }}
     .dbm-card .kpi-top {{
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 10px;
+        margin-bottom: 12px;
     }}
     .dbm-card .kpi-label {{
         color: {TEXTO_MUTE};
-        font-size: .72rem;
+        font-size: .70rem;
         text-transform: uppercase;
-        letter-spacing: .07em;
+        letter-spacing: .09em;
         font-weight: 600;
     }}
     .dbm-card .kpi-dot {{
-        width: 9px;
-        height: 9px;
+        width: 8px;
+        height: 8px;
         border-radius: 50%;
         background: {VERDE};
     }}
     .dbm-card .kpi-value {{
-        font-size: 2.0rem;
+        font-size: 2.1rem;
         font-weight: 800;
-        line-height: 1.1;
+        line-height: 1.05;
         color: {PRETO};
+        letter-spacing: -0.02em;
     }}
     .dbm-card .kpi-value small {{
         font-size: 1.1rem;
@@ -164,26 +197,52 @@ CSS = f"""
     .dbm-card .kpi-sub {{
         color: {TEXTO_MUTE};
         font-size: .8rem;
-        margin-top: 6px;
+        margin-top: 8px;
+    }}
+
+    /* ===== Tooltip no card ===== */
+    .dbm-tooltip-wrap {{
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height .2s ease, padding .2s ease;
+        padding: 0;
+    }}
+    .dbm-tooltip {{
+        background: {PRETO};
+        color: {BRANCO};
+        padding: 9px 12px;
+        border-radius: 8px;
+        font-size: .78rem;
+        font-weight: 500;
+        line-height: 1.5;
+        white-space: normal;
+        text-align: center;
+        margin-top: 8px;
+        box-shadow: 0 4px 12px rgba(15,23,42,.25);
+        display: inline-block;
+    }}
+    .dbm-card:hover .dbm-tooltip-wrap {{
+        max-height: 120px;
+        padding-bottom: 4px;
     }}
 
     /* ===== Seções ===== */
     .dbm-section {{
-        margin-top: 26px;
+        margin-top: 28px;
         margin-bottom: 12px;
     }}
     .dbm-section h4 {{
-        font-size: 1.05rem;
+        font-size: 1.02rem;
         font-weight: 700;
-        margin: 0 0 10px 0;
+        margin: 0 0 12px 0;
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 10px;
     }}
     .dbm-section h4::before {{
         content: "";
-        width: 10px;
-        height: 10px;
+        width: 4px;
+        height: 16px;
         border-radius: 3px;
         background: {VERDE};
     }}
@@ -205,48 +264,87 @@ CSS = f"""
         border-radius: 12px;
         overflow: hidden;
         font-size: .86rem;
-        box-shadow: 0 1px 3px rgba(17,17,17,.06);
+        box-shadow: 0 1px 4px rgba(15,23,42,.05);
     }}
     .dbm-table th {{
         background: {CINZA_ESCURO};
         color: {BRANCO};
         text-align: left;
-        padding: 10px 12px;
+        padding: 11px 14px;
         font-weight: 600;
-        font-size: .78rem;
+        font-size: .76rem;
         text-transform: uppercase;
-        letter-spacing: .04em;
+        letter-spacing: .05em;
     }}
     .dbm-table td {{
-        padding: 9px 12px;
+        padding: 10px 14px;
         border-bottom: 1px solid {BORDA};
         color: {PRETO};
     }}
     .dbm-table tr:hover td {{
-        background: #f0fdf7;
+        background: {VERDE_CLARO};
+    }}
+
+    /* ===== Botões ===== */
+    .stButton > button {{
+        border-radius: 10px;
+        border: 1px solid {BORDA};
+        font-weight: 600;
+        transition: all .2s ease;
+    }}
+    .stButton > button:hover {{
+        border-color: {VERDE};
+        color: {VERDE_ESCURO};
+        transform: translateY(-1px);
     }}
 </style>
 """
+
+NAV_ITENS = [
+    ("Geral.py", "Visão Geral"),
+    ("pages/1_Documentação.py", "Documentação"),
+    ("pages/2_Indicadores.py", "Indicadores"),
+    ("pages/3_Treinamento.py", "Treinamento"),
+    ("pages/6_Qualidade.py", "Qualidade"),
+    ("pages/4_Evolução.py", "Evolução"),
+    ("pages/5_Plano_de_ação.py", "Plano de Ação"),
+]
 
 
 def aplicar_css() -> None:
     st.markdown(CSS, unsafe_allow_html=True)
 
 
+def navegacao(atual: str = "") -> None:
+    """Barra de navegação horizontal. O item ativo fica destacado em verde e
+    os botões desvanecem (fade) ao trocar de página (animação de entrada)."""
+    dir_app = Path(__file__).resolve().parent.parent  # raiz do projeto
+    main_path = Path(st.session_state.get("main_script_path", str(dir_app / "Geral.py"))).resolve()
+    base = main_path.parent  # diretório do script principal
+    cols = st.columns(len(NAV_ITENS))
+    for col, (arquivo, nome) in zip(cols, NAV_ITENS):
+        with col:
+            if arquivo == atual:
+                st.markdown(f'<div class="dbm-nav-item active">{nome}</div>', unsafe_allow_html=True)
+            else:
+                destino = (dir_app / arquivo).relative_to(base).as_posix()
+                st.button(
+                    nome,
+                    key=f"nav_{arquivo}",
+                    on_click=lambda p=destino: st.switch_page(p),
+                    use_container_width=True,
+                )
+
+
 def header(pagina: str, subtitulo: str = "") -> None:
-    """Header preto estilo dbm com wordmark e tag da página atual."""
+    """Cabeçalho limpo com título e subtítulo, sem marca institucional."""
     st.markdown(
         f"""
-        <div class="dbm-header">
-            <div class="dbm-brand">
-                <div class="dbm-wordmark">dbm<span>.</span></div>
-                <div class="dbm-brand-divider"></div>
-                <div>
-                    <div class="dbm-title">Análise de Maturidade em Processos</div>
-                    <div class="dbm-sub">CX feito por pessoas</div>
-                </div>
+        <div class="app-header">
+            <div>
+                <h1>{pagina}</h1>
+                <div class="app-header-sub">{subtitulo}</div>
             </div>
-            <div class="dbm-tag">{pagina}</div>
         </div>
         """,
         unsafe_allow_html=True,
@@ -270,12 +368,15 @@ def secao(titulo: str) -> None:
     st.markdown(f'<div class="dbm-section"><h4>{titulo}</h4></div>', unsafe_allow_html=True)
 
 
-def card(titulo: str, valor, sub: str = "", cor: str = VERDE, valor_format=None):
+def card(titulo: str, valor, sub: str = "", cor: str = VERDE, valor_format=None, tooltip: str = ""):
     if valor is None or (isinstance(valor, float) and pd.isna(valor)):
         texto = "—"
     else:
         texto = str(valor) if valor_format is None else valor_format(valor)
     sub_html = f'<div class="kpi-sub">{sub}</div>' if sub else ""
+    tooltip_html = (
+        f'<div class="dbm-tooltip-wrap"><div class="dbm-tooltip">{tooltip}</div></div>' if tooltip else ""
+    )
     st.markdown(
         f"""
         <div class="dbm-card">
@@ -285,6 +386,7 @@ def card(titulo: str, valor, sub: str = "", cor: str = VERDE, valor_format=None)
             </div>
             <div class="kpi-value">{texto}</div>
             {sub_html}
+            {tooltip_html}
         </div>
         """,
         unsafe_allow_html=True,
@@ -313,7 +415,7 @@ def chip_faixa(faixa: str) -> str:
 def chip_evolucao(ev: str) -> str:
     if not ev:
         return "—"
-    cor = "#02DE81" if "▲" in ev else ("#E23C3C" if "▼" in ev else "#6b7280")
+    cor = VERDE if "▲" in ev else ("#DC2626" if "▼" in ev else TEXTO_MUTE)
     return f'<span style="color:{cor};font-weight:700">{ev}</span>'
 
 

@@ -1,59 +1,61 @@
 # -*- coding: utf-8 -*-
-"""Identidade visual — inspirada no site da dbm (www.dbm.com.br).
+"""Identidade visual — verde sóbrio sobre base da marca dbm.
 
-Paleta da marca: verde #02DE81, preto, branco e cinza claro.
-Estilo: minimalista, sem serifas, cards limpos com acento verde.
+Paleta da marca: verde profundo #065F46, acento #059669, fundo claro
+#F8FAFC, textos grafite #0F172A. Estilo corporativo/analítico, minimalista,
+sem serifas, cards limpos com acento verde.
 """
 
 # Cores da marca
-VERDE = "#02DE81"          # verde dbm (primária)
-VERDE_ESCURO = "#00C46E"   # hover / variação do verde
-PRETO = "#111111"          # textos e header
-CINZA_ESCURO = "#2B2B2B"   # superfícies escuras (header)
-FUNDO = "#F5F5F5"          # fundo geral (cinza claro)
+VERDE = "#059669"            # verde (acento principal)
+VERDE_ESCURO = "#065F46"     # verde profundo (header, títulos)
+VERDE_CLARO = "#ECFDF5"      # fundo de destaque / hover
+PRETO = "#0F172A"            # textos principais (grafite)
+CINZA_ESCURO = "#065F46"     # superfícies escuras (header) — verde profundo
+FUNDO = "#F8FAFC"            # fundo geral (branco-azulado)
 BRANCO = "#FFFFFF"
-TEXTO = "#1A1A1A"
-TEXTO_MUTE = "#6B7280"
-BORDA = "#E5E7EB"
+TEXTO = "#1E293B"
+TEXTO_MUTE = "#64748B"
+BORDA = "#E2E8F0"
 
-# Cores das faixas de maturidade
+# Cores das faixas de maturidade (verdes sóbrios, vermelho/âmbar para alerta)
 CORES_FAIXA = {
-    "Baixíssima maturidade": "#E23C3C",
+    "Baixíssima maturidade": "#DC2626",
     "Baixa maturidade": "#F59E0B",
-    "Maturidade intermediária": "#FACC15",
-    "Boa maturidade": "#34D399",
-    "Excelente maturidade": "#02DE81",
+    "Maturidade intermediária": "#EAB308",
+    "Boa maturidade": "#10B981",
+    "Excelente maturidade": "#065F46",
 }
 
 # Status do plano de ação
 CORES_STATUS = {
-    "Aberto": "#E23C3C",
+    "Aberto": "#DC2626",
     "Em andamento": "#F59E0B",
-    "Concluído": "#02DE81",
+    "Concluído": "#059669",
 }
 
-# Frentes avaliadas
+# Frentes avaliadas (verdes em escala)
 CORES_FRENTES = {
-    "Documentação": "#02DE81",
-    "Indicadores": "#00C46E",
-    "Treinamento": "#34D399",
-    "Qualidade": "#111111",
+    "Documentação": "#065F46",
+    "Indicadores": "#059669",
+    "Treinamento": "#10B981",
+    "Qualidade": "#1E293B",
 }
 
 
 def cor_faixa(faixa):
-    return CORES_FAIXA.get(faixa, "#9CA3AF")
+    return CORES_FAIXA.get(faixa, "#94A3B8")
 
 
 def cor_status(status):
-    return CORES_STATUS.get(status, "#9CA3AF")
+    return CORES_STATUS.get(status, "#94A3B8")
 
 
 def cor_score(score):
     if score is None:
-        return "#9CA3AF"
+        return "#94A3B8"
     if score <= 35:
-        return "#E23C3C"
+        return "#DC2626"
     if score <= 75:
         return "#F59E0B"
-    return "#02DE81"
+    return "#059669"

@@ -15,6 +15,7 @@ from ui import (
     empty_state,
     header,
     linha_cards,
+    navegacao,
     secao,
     tabela_html,
     titulo_pagina,
@@ -24,7 +25,8 @@ preparar_dados()
 pa = st.session_state.plano
 
 aplicar_css()
-header("Plano de Ação")
+navegacao("pages/5_Plano_de_ação.py")
+header("Plano de Ação", "Ações para calibrar a maturidade das operações na próxima análise.")
 titulo_pagina(
     "Plano de Ação",
     "Ações para calibrar a maturidade das operações na próxima análise.",
@@ -52,9 +54,9 @@ linha_cards(
         {"titulo": "Ações Abertas", "valor": m["Abertas"], "cor": CORES_STATUS["Aberto"], "valor_format": _fmt_int},
         {"titulo": "Em Andamento", "valor": m["Em Andamento"], "cor": CORES_STATUS["Em andamento"], "valor_format": _fmt_int},
         {"titulo": "Concluídas", "valor": m["Concluídas"], "cor": CORES_STATUS["Concluído"], "valor_format": _fmt_int},
-        {"titulo": "Vencidas", "valor": m["Vencidas"], "cor": "#E23C3C", "valor_format": _fmt_int},
+        {"titulo": "Vencidas", "valor": m["Vencidas"], "cor": "#DC2626", "valor_format": _fmt_int},
         {"titulo": "A Vencer (30 dias)", "valor": m["A Vencer (30 dias)"], "cor": "#F59E0B", "valor_format": _fmt_int},
-        {"titulo": "% Concluídas", "valor": m["% Concluídas"], "cor": "#02DE81", "valor_format": _fmt_pct},
+        {"titulo": "% Concluídas", "valor": m["% Concluídas"], "cor": "#059669", "valor_format": _fmt_pct},
     ]
 )
 
@@ -80,7 +82,7 @@ with c1:
         go.Bar(
             x=status_counts.index,
             y=status_counts.values,
-            marker_color=[CORES_STATUS.get(s, "#9CA3AF") for s in status_counts.index],
+            marker_color=[CORES_STATUS.get(s, "#94A3B8") for s in status_counts.index],
             text=status_counts.values,
             textposition="outside",
         )
@@ -88,12 +90,12 @@ with c1:
     fig.update_layout(
         height=320,
         font=dict(family="Segoe UI", color=TEXTO_MUTE),
-        yaxis=dict(gridcolor="#E5E7EB"),
+        yaxis=dict(gridcolor="#E2E8F0"),
         margin=dict(l=10, r=10, t=20, b=10),
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
 with c2:
     secao("Ações por Frente")
@@ -103,7 +105,7 @@ with c2:
             labels=frente_counts.index,
             values=frente_counts.values,
             hole=0.5,
-            marker=dict(colors=["#02DE81", "#00C46E", "#34D399"][: len(frente_counts)]),
+            marker=dict(colors=["#059669", "#059669", "#10B981"][: len(frente_counts)]),
         )
     )
     fig2.update_layout(
@@ -113,7 +115,7 @@ with c2:
         showlegend=True,
         paper_bgcolor="rgba(0,0,0,0)",
     )
-    st.plotly_chart(fig2, use_container_width=True)
+    st.plotly_chart(fig2, width="stretch")
 
 secao("Detalhe das Ações")
 exibir = pa.copy()
@@ -122,7 +124,7 @@ hoje = pd.Timestamp.today().normalize()
 exibir["Prazo"] = exibir["Prazo"].map(lambda d: d.date() if pd.notna(d) else d)
 vencida = pa["Prazo"].notna() & (pa["Prazo"] < hoje) & (pa["Status da Ação"] != "Concluído")
 exibir.loc[vencida.values, "Prazo"] = exibir.loc[vencida.values, "Prazo"].map(
-    lambda d: f"<span style='color:#E23C3C;font-weight:700'>⚠️ {d}</span>"
+    lambda d: f"<span style='color:#DC2626;font-weight:700'>⚠️ {d}</span>"
 )
 st.markdown(
     tabela_html(

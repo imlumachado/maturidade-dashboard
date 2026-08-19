@@ -13,6 +13,7 @@ from ui import (
     empty_state,
     header,
     linha_cards,
+    navegacao,
     secao,
     titulo_pagina,
 )
@@ -34,7 +35,7 @@ def _layout_fig(height=320):
     return dict(
         height=height,
         yaxis_title="Score (0–100)",
-        yaxis=dict(range=[0, 100], gridcolor="#E5E7EB"),
+        yaxis=dict(range=[0, 100], gridcolor="#E2E8F0"),
         xaxis=dict(gridcolor="rgba(0,0,0,0)"),
         font=dict(family="Segoe UI", color=TEXTO_MUTE),
         margin=dict(l=10, r=10, t=20, b=10),
@@ -52,8 +53,10 @@ def renderizar(
     col_item: str,
     cor_frente: str,
     cols_tabela: list[str],
+    arquivo: str = "",
 ):
     aplicar_css()
+    navegacao(arquivo)
     header(titulo)
     titulo_pagina(titulo, subtitulo)
 
@@ -97,7 +100,7 @@ def renderizar(
             }
         )
     cards.append({"titulo": f"Score {titulo}", "valor": m["Score"], "cor": cor_frente, "valor_format": _fmt_score})
-    cards.append({"titulo": f"Graves ({titulo})", "valor": m["Graves"], "cor": "#E23C3C", "valor_format": _fmt_int})
+    cards.append({"titulo": f"Graves ({titulo})", "valor": m["Graves"], "cor": "#DC2626", "valor_format": _fmt_int})
     linha_cards(cards)
 
     secao(f"Score {titulo} por Operação")
@@ -112,7 +115,7 @@ def renderizar(
         )
     )
     fig.update_layout(**_layout_fig())
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
     secao("Sub-scores por Operação")
     fig2 = go.Figure()
@@ -127,14 +130,14 @@ def renderizar(
             )
         )
     fig2.update_layout(**_layout_fig())
-    st.plotly_chart(fig2, use_container_width=True)
+    st.plotly_chart(fig2, width="stretch")
 
     secao("Detalhe")
     visiveis = [c for c in cols_tabela if c in df.columns]
     st.dataframe(
         df[visiveis],
         hide_index=True,
-        use_container_width=True,
+        width="stretch",
         column_config={
             "ScoreLinha": st.column_config.ProgressColumn(
                 "ScoreLinha", min_value=-100, max_value=100, format="%.0f"
