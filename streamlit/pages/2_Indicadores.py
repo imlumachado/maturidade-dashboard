@@ -8,6 +8,10 @@ from common import dados_filtrados, preparar_dados
 from metrics import SUB_IND
 from pagina_frente import renderizar
 from theme import CORES_FRENTES
+from ui import aplicar_css, navegacao
+
+aplicar_css()
+navegacao("pages/2_Indicadores.py")
 
 preparar_dados()
 _, ind, _, _ = dados_filtrados()

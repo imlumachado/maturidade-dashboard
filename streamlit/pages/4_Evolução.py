@@ -14,19 +14,18 @@ from ui import (
     chip_evolucao,
     chip_faixa,
     empty_state,
-    header,
     navegacao,
     secao,
     tabela_html,
     titulo_pagina,
 )
 
+aplicar_css()
+navegacao("pages/4_Evolução.py")
+
 preparar_dados()
 doc, ind, tre, qua = dados_filtrados_op()
 
-aplicar_css()
-navegacao("pages/4_Evolução.py")
-header("Evolução", "Score final ao longo dos ciclos de avaliação (ignora o filtro de período).")
 titulo_pagina(
     "Evolução",
     "Score final ao longo dos ciclos de avaliação (ignora o filtro de período).",

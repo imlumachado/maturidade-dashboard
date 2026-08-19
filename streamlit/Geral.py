@@ -26,7 +26,6 @@ from ui import (
     chip_evolucao,
     chip_faixa,
     empty_state,
-    header,
     linha_cards,
     navegacao,
     secao,
@@ -47,14 +46,14 @@ def _fmt_int(v):
     return str(int(v)) if v is not None else "0"
 
 
+aplicar_css()
+navegacao("Geral.py")
+
 preparar_dados()
 doc, ind, tre, qua = dados_filtrados()
 doc_op, ind_op, tre_op, qua_op = dados_filtrados_op()
 plano = st.session_state.plano
 
-aplicar_css()
-navegacao("Geral.py")
-header("Visão Geral", "Análise de Maturidade em Processos")
 titulo_pagina("Visão Geral", "Análise de Maturidade em Processos")
 
 if doc.empty and ind.empty and tre.empty and qua.empty:
@@ -85,7 +84,6 @@ linha_cards(
         },
     ]
 )
-st.caption("Passe o cursor sobre o card para ver operações avaliadas e ações vencidas.")
 
 secao("Alertas")
 linha_cards(

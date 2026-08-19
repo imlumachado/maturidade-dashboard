@@ -8,6 +8,10 @@ from common import dados_filtrados, preparar_dados
 from metrics import SUB_DOC
 from pagina_frente import renderizar
 from theme import CORES_FRENTES
+from ui import aplicar_css, navegacao
+
+aplicar_css()
+navegacao("pages/1_Documentação.py")
 
 preparar_dados()
 doc, _, _, _ = dados_filtrados()

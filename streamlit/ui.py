@@ -76,29 +76,21 @@ CSS = f"""
         margin-top: 2px;
     }}
 
-    /* ===== Navegação ===== */
+    /* ===== Navegação (sidebar) ===== */
     .dbm-nav {{
-        display: flex;
-        flex-wrap: wrap;
-        gap: 6px;
-        margin-bottom: 24px;
-        padding: 8px;
-        background: {BRANCO};
-        border: 1px solid {BORDA};
-        border-radius: 14px;
-        box-shadow: 0 1px 3px rgba(15,23,42,.05);
+        margin-bottom: 18px;
     }}
     .dbm-nav .stButton {{
-        flex: 1 1 auto;
+        margin-bottom: 4px;
     }}
     .dbm-nav .stButton > button {{
         width: 100%;
-        text-align: center;
+        text-align: left;
         background: transparent;
         color: {TEXTO_MUTE};
-        font-size: .82rem;
+        font-size: .86rem;
         font-weight: 600;
-        padding: 8px 12px;
+        padding: 9px 14px;
         border-radius: 9px;
         border: 1px solid transparent;
         transition: background-color .25s ease, color .25s ease, transform .15s ease, box-shadow .25s ease;
@@ -107,22 +99,23 @@ CSS = f"""
     .dbm-nav .stButton > button:hover {{
         background: {VERDE_CLARO};
         color: {VERDE_ESCURO};
-        transform: translateY(-1px);
+        transform: translateX(2px);
     }}
     .dbm-nav .stButton > button:focus {{
         box-shadow: none;
     }}
     .dbm-nav-item {{
-        flex: 1 1 auto;
-        text-align: center;
+        width: 100%;
+        text-align: left;
         background: {VERDE};
         color: {BRANCO};
-        font-size: .82rem;
+        font-size: .86rem;
         font-weight: 700;
-        padding: 9px 12px;
+        padding: 10px 14px;
         border-radius: 9px;
         box-shadow: 0 2px 6px rgba(5,150,105,.35);
         white-space: nowrap;
+        margin-bottom: 4px;
     }}
 
     /* ===== Cabeçalho da página ===== */
@@ -316,22 +309,21 @@ def aplicar_css() -> None:
 
 
 def navegacao(atual: str = "") -> None:
-    """Barra de navegação horizontal. O item ativo fica destacado em verde e
+    """Navegação vertical na sidebar. O item ativo fica destacado em verde e
     os botões desvanecem (fade) ao trocar de página (animação de entrada)."""
-    dir_app = Path(__file__).resolve().parent.parent  # raiz do projeto
-    main_path = Path(st.session_state.get("main_script_path", str(dir_app / "Geral.py"))).resolve()
-    base = main_path.parent  # diretório do script principal
-    cols = st.columns(len(NAV_ITENS))
-    for col, (arquivo, nome) in zip(cols, NAV_ITENS):
-        with col:
+    with st.sidebar:
+        st.markdown(
+            '<div class="dbm-nav"><div class="dbm-nav-item" style="margin-bottom:10px;background:#EDF9F3;color:#065F46;box-shadow:none;font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;">Navegação</div></div>',
+            unsafe_allow_html=True,
+        )
+        for arquivo, nome in NAV_ITENS:
             if arquivo == atual:
-                st.markdown(f'<div class="dbm-nav-item active">{nome}</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="dbm-nav-item">{nome}</div>', unsafe_allow_html=True)
             else:
-                destino = (dir_app / arquivo).relative_to(base).as_posix()
                 st.button(
                     nome,
                     key=f"nav_{arquivo}",
-                    on_click=lambda p=destino: st.switch_page(p),
+                    on_click=lambda p=arquivo: st.switch_page(p),
                     use_container_width=True,
                 )
 

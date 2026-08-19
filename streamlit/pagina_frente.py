@@ -11,9 +11,7 @@ from theme import TEXTO_MUTE, VERDE
 from ui import (
     aplicar_css,
     empty_state,
-    header,
     linha_cards,
-    navegacao,
     secao,
     titulo_pagina,
 )
@@ -56,8 +54,6 @@ def renderizar(
     arquivo: str = "",
 ):
     aplicar_css()
-    navegacao(arquivo)
-    header(titulo)
     titulo_pagina(titulo, subtitulo)
 
     if df.empty:

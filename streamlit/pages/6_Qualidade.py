@@ -8,6 +8,10 @@ from common import dados_filtrados, preparar_dados
 from metrics import SUB_QUA
 from pagina_frente import renderizar
 from theme import CORES_FRENTES
+from ui import aplicar_css, navegacao
+
+aplicar_css()
+navegacao("pages/6_Qualidade.py")
 
 preparar_dados()
 _, _, _, qua = dados_filtrados()

@@ -13,7 +13,6 @@ from ui import (
     aplicar_css,
     chip_status,
     empty_state,
-    header,
     linha_cards,
     navegacao,
     secao,
@@ -21,12 +20,12 @@ from ui import (
     titulo_pagina,
 )
 
+aplicar_css()
+navegacao("pages/5_Plano_de_ação.py")
+
 preparar_dados()
 pa = st.session_state.plano
 
-aplicar_css()
-navegacao("pages/5_Plano_de_ação.py")
-header("Plano de Ação", "Ações para calibrar a maturidade das operações na próxima análise.")
 titulo_pagina(
     "Plano de Ação",
     "Ações para calibrar a maturidade das operações na próxima análise.",
