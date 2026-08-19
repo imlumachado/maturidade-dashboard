@@ -247,10 +247,59 @@ def test_metricas_plano():
 # ---------------------------------------------------------------------------
 # Carregamento do formulário real (se existir)
 # ---------------------------------------------------------------------------
-@pytest.mark.skipif(not (FORMULARIO / "F_O_025_Formulario_Maturidade_Planos.xlsx").exists(), reason="formulário ausente")
+FORMULARIO_XLSX = FORMULARIO / "F_O_025_Formulario_Maturidade_Planos.xlsx"
+
+
+@pytest.mark.skipif(not FORMULARIO_XLSX.exists(), reason="formulário ausente")
 def test_carregar_dados_real():
     d = carregar_dados(_mtime())
     assert set(d) == {"Documentacao", "Indicadores", "Treinamento", "Qualidade", "PlanoAcao"}
     assert not d["Documentacao"].empty
     assert not (d["Documentacao"]["Operação"] == "Exemplo (apagar)").any()
     assert d["Documentacao"]["ScoreLinha"].between(-100, 100).all()
+
+
+@pytest.mark.skipif(not FORMULARIO_XLSX.exists(), reason="formulário ausente")
+def test_scores_conferem_com_resumo():
+    """Scores das frentes batem com a aba Resumo do formulário.
+
+    O Resumo calcula a média da coluna de score de cada aba. O app exclui as
+    linhas 'Exemplo (apagar)' e sem data; aqui lemos as colunas de score
+    diretamente e comparamos com o ScoreLinha calculado pelo app.
+    """
+    import openpyxl
+
+    from data_loader import _CONFIG, FORMULARIO
+
+    wb = openpyxl.load_workbook(FORMULARIO_XLSX, data_only=True)
+    esperado = {
+        "Avaliação": 63.39,
+        "Indicadores": 67.73,
+        "Treinamento": 72.5,
+        "Qualidade": 63.25,
+    }
+    d = carregar_dados(_mtime())
+
+    for aba, col_score in (
+        ("Avaliação", "Documentação"),
+        ("Indicadores", "Score Indicadores"),
+        ("Treinamento", "Score Treinamento"),
+        ("Qualidade", "Score Qualidade"),
+    ):
+        cfg = _CONFIG["Avaliação"] if aba == "Avaliação" else _CONFIG[aba]
+        ws = wb[aba]
+        hdrs = [c.value for c in ws[1]]
+        rows = [r for r in ws.iter_rows(min_row=2, values_only=True)]
+        df = pd.DataFrame(rows, columns=hdrs)
+        df = df[df["Data da avaliação"].notna()].copy()
+        df["Operação"] = df["Operação"].astype(str).str.strip()
+        df = df[df["Operação"].ne("") & df["Operação"].ne("Exemplo (apagar)")]
+        for nome, col, fn in cfg["subs"]:
+            df[nome] = df[col].map(fn)
+        subs = [nome for nome, _, _ in cfg["subs"]]
+        df["Score"] = df[subs].apply(lambda r: _score_linha(r.tolist()), axis=1)
+        excel = pd.to_numeric(df[col_score], errors="coerce")
+
+        assert not df["Score"].isna().any(), f"{aba}: ScoreLinha nulo presente"
+        assert (df["Score"] == excel).all(), f"{aba}: divergência linha a linha"
+        assert round(df["Score"].mean(), 2) == esperado[aba], f"{aba}: média não confere"
