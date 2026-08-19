@@ -13,6 +13,7 @@ from ui import (
     aplicar_css,
     chip_evolucao,
     chip_faixa,
+    chip_score,
     empty_state,
     navegacao,
     secao,
@@ -54,7 +55,7 @@ if not serie.empty:
         yaxis_title="Score (0–100)",
         yaxis=dict(range=[0, 100], gridcolor="#E2E8F0"),
         xaxis=dict(gridcolor="rgba(0,0,0,0)"),
-        font=dict(family="Segoe UI", color=TEXTO_MUTE),
+        font=dict(family="Stack Sans Text, Segoe UI", color=TEXTO_MUTE),
         margin=dict(l=10, r=10, t=20, b=10),
         legend=dict(orientation="h", y=1.12),
         paper_bgcolor="rgba(0,0,0,0)",
@@ -70,6 +71,10 @@ if not evol.empty:
     exibir = evol.copy()
     exibir["Faixa"] = exibir["Faixa"].map(chip_faixa)
     exibir["Evolução"] = exibir["Evolução"].map(chip_evolucao)
+    for col in ("Data Primeira Avaliação", "Data Última Avaliação"):
+        exibir[col] = exibir[col].map(lambda d: d.strftime("%d/%m/%Y") if pd.notna(d) else "—")
+    for col in ("Score Final Ciclo Anterior", "Score Final Último Ciclo"):
+        exibir[col] = exibir[col].map(chip_score)
     st.markdown(
         tabela_html(
             exibir[
@@ -83,7 +88,7 @@ if not evol.empty:
                     "Faixa",
                     "Evolução",
                 ]
-            ].astype(object).map(lambda v: f"{v:.1f}" if isinstance(v, (int, float)) else v)
+            ].astype(object).map(lambda v: f"{v:.2f}" if isinstance(v, (int, float)) else v)
         ),
         unsafe_allow_html=True,
     )

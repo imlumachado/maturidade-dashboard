@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
-"""Camada de dados — replica as consultas Power Query (modelo_dados.m) em pandas.
+"""Leitura do formulário F_O_025_Formulario_Maturidade_Planos.xlsx.
 
-Lê o formulário F_O_025_Formulario_Maturidade_Planos.xlsx e produz as 4 tabelas
-usadas pelo dashboard: Documentacao, Indicadores, Treinamento e PlanoAcao.
+Produz as 5 tabelas usadas no dashboard: Documentacao, Indicadores,
+Treinamento, Qualidade e PlanoAcao.
 """
-from __future__ import annotations
 
 from decimal import ROUND_HALF_UP, Decimal
 from functools import lru_cache
@@ -198,16 +197,15 @@ def _plano_acao(doc: pd.DataFrame, ind: pd.DataFrame, tre: pd.DataFrame) -> pd.D
 
 
 def _mtime() -> float:
-    """Data de modificação do formulário — invalida o cache quando a planilha muda."""
+    """Momento da última modificação do formulário (invalida o cache)."""
     return FORMULARIO.stat().st_mtime if FORMULARIO.exists() else 0.0
 
 
 @lru_cache(maxsize=1)
 def carregar_dados(mtime: float = 0.0) -> dict[str, pd.DataFrame]:
-    """Carrega o formulário e devolve as 5 tabelas do modelo.
+    """Lê o formulário e devolve as 5 tabelas do modelo.
 
-    O parâmetro `mtime` (não usado internamente) faz o cache ser invalidado
-    automaticamente sempre que a planilha for salva.
+    O `mtime` só existe para quebrar o cache quando a planilha for salva.
     """
     del mtime
     doc = _fato("Avaliação", _CONFIG["Avaliação"])

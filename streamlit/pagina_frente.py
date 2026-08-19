@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
-"""Helper para as páginas de frente (Documentação, Indicadores, Treinamento)."""
-from __future__ import annotations
+"""Layout padrão das páginas de frente (Documentação, Indicadores, Treinamento, Qualidade)."""
 
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
 from metrics import metricas_frente
-from theme import TEXTO_MUTE, VERDE
+from theme import TEXTO_MUTE, cor_score_gradiente
 from ui import (
     aplicar_css,
     empty_state,
@@ -18,11 +17,11 @@ from ui import (
 
 
 def _fmt_pct(v):
-    return f"{v:.0f}%" if v is not None else "—"
+    return f"{v:.2f}%" if v is not None else "0.00%"
 
 
 def _fmt_score(v):
-    return f"{v:.1f}" if v is not None else "—"
+    return f"{v:.2f}" if v is not None else "0.00"
 
 
 def _fmt_int(v):
@@ -35,7 +34,7 @@ def _layout_fig(height=320):
         yaxis_title="Score (0–100)",
         yaxis=dict(range=[0, 100], gridcolor="#E2E8F0"),
         xaxis=dict(gridcolor="rgba(0,0,0,0)"),
-        font=dict(family="Segoe UI", color=TEXTO_MUTE),
+        font=dict(family="Stack Sans Text, Segoe UI", color=TEXTO_MUTE),
         margin=dict(l=10, r=10, t=20, b=10),
         legend=dict(orientation="h", y=1.12),
         paper_bgcolor="rgba(0,0,0,0)",
@@ -82,9 +81,14 @@ def renderizar(
             ("Conformidade", "Sub Conformidade"),
         ]
 
+    rotulo_total = {
+        "Documentação": "Documentos avaliados",
+        "Qualidade": "Monitorias avaliadas",
+    }.get(titulo, f"{titulo} Avaliados")
     secao("Indicadores-chave")
     cards = [
-        {"titulo": f"{titulo} Avaliados", "valor": m["Total"], "cor": cor_frente, "valor_format": _fmt_int},
+        {"titulo": f"Score {titulo}", "valor": m["Score"], "cor": cor_score_gradiente(m["Score"]), "valor_format": _fmt_score},
+        {"titulo": rotulo_total, "valor": m["Total"], "cor": cor_frente, "valor_format": _fmt_int},
     ]
     for rotulo, sub in labels:
         cards.append(
@@ -95,7 +99,6 @@ def renderizar(
                 "valor_format": _fmt_pct,
             }
         )
-    cards.append({"titulo": f"Score {titulo}", "valor": m["Score"], "cor": cor_frente, "valor_format": _fmt_score})
     cards.append({"titulo": f"Graves ({titulo})", "valor": m["Graves"], "cor": "#DC2626", "valor_format": _fmt_int})
     linha_cards(cards)
 
@@ -106,7 +109,7 @@ def renderizar(
             x=por_op["Operação"],
             y=por_op["ScoreLinha"],
             marker_color=cor_frente,
-            text=[f"{v:.0f}" for v in por_op["ScoreLinha"]],
+            text=[f"{v:.2f}" for v in por_op["ScoreLinha"]],
             textposition="outside",
         )
     )

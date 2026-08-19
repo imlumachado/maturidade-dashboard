@@ -1,10 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Camada de cálculo — replica as medidas DAX (medidas.dax) em Python.
-
-Todas as funções recebem DataFrames já filtrados e devolvem valores
-numéricos ou tabelas prontas para exibição.
-"""
-from __future__ import annotations
+"""Cálculos usados nas páginas: scores, faixas, evolução e plano de ação."""
 
 from typing import Optional
 
@@ -18,14 +13,11 @@ SUB_TRE = ["Sub Coerência", "Sub Aplicação", "Sub Atualização", "Sub Confor
 SUB_QUA = ["Sub Existência", "Sub Abrangência", "Sub Conformidade"]
 
 
-# ---------------------------------------------------------------------------
-# Scores e faixa
-# ---------------------------------------------------------------------------
 def score_frente(df: pd.DataFrame) -> Optional[float]:
     if df.empty:
         return None
     s = df["ScoreLinha"].mean()
-    return None if pd.isna(s) else float(s)
+    return None if pd.isna(s) else round(float(s), 2)
 
 
 def score_final(
@@ -41,7 +33,7 @@ def score_final(
     ]
     if not scores:
         return None
-    return sum(scores) / len(scores)
+    return round(sum(scores) / len(scores), 2)
 
 
 def faixa_maturidade(score: Optional[float]) -> Optional[str]:
@@ -60,9 +52,6 @@ def faixa_maturidade(score: Optional[float]) -> Optional[str]:
     return None
 
 
-# ---------------------------------------------------------------------------
-# Contadores, percentuais, sub-scores e fraquezas por frente
-# ---------------------------------------------------------------------------
 def _conta(df: pd.DataFrame, col: str, valor: float) -> int:
     if df.empty or col not in df.columns:
         return 0
@@ -79,12 +68,12 @@ def metricas_frente(df: pd.DataFrame, subs: list[str]) -> dict:
     for s in subs:
         nome = s.replace("Sub ", "Score ")
         v = df[s].mean()
-        m[nome] = None if pd.isna(v) else float(v * 100)
-        m["% " + s] = (_conta(df, s, 1.0) / total * 100) if total else None
+        m[nome] = 0.0 if pd.isna(v) else round(float(v * 100), 2)
+        m["% " + s] = round(_conta(df, s, 1.0) / total * 100, 2) if total else 0.0
     m["Conformes"] = _conta(df, "Sub Conformidade", 1.0)
     m["Não Conformes"] = _conta(df, "Sub Conformidade", 0.0)
     m["Graves"] = _conta(df, "Sub Conformidade", -1.0)
-    m["% Graves"] = (m["Graves"] / total * 100) if total else None
+    m["% Graves"] = round(m["Graves"] / total * 100, 2) if total else 0.0
     return m
 
 
@@ -100,9 +89,6 @@ def metricas_treinamento(df: pd.DataFrame) -> dict:
     return metricas_frente(df, SUB_TRE)
 
 
-# ---------------------------------------------------------------------------
-# Agregados da visão geral (cruzam as 3 frentes)
-# ---------------------------------------------------------------------------
 def metricas_geral(
     doc: pd.DataFrame, ind: pd.DataFrame, tre: pd.DataFrame, qua: pd.DataFrame
 ) -> dict:
@@ -141,9 +127,6 @@ def metricas_geral(
     }
 
 
-# ---------------------------------------------------------------------------
-# Scores por operação (por frente e final)
-# ---------------------------------------------------------------------------
 def scores_por_operacao(
     doc: pd.DataFrame, ind: pd.DataFrame, tre: pd.DataFrame, qua: pd.DataFrame
 ) -> pd.DataFrame:
@@ -173,9 +156,6 @@ def scores_por_operacao(
     return pd.DataFrame(linhas)
 
 
-# ---------------------------------------------------------------------------
-# Evolução entre ciclos
-# ---------------------------------------------------------------------------
 def _datas_unica(fatos: list[pd.DataFrame]) -> list:
     return sorted(
         {
@@ -197,7 +177,7 @@ def _score_em(d: object, fatos: list[pd.DataFrame]) -> Optional[float]:
                 scores.append(float(s))
     if not scores:
         return None
-    return sum(scores) / len(scores)
+    return round(sum(scores) / len(scores), 2)
 
 
 def evolucao(
@@ -242,14 +222,14 @@ def ultimo_ciclo_global(
     fatos = [doc, ind, tre, qua]
     datas = _datas_unica(fatos)
     if not datas:
-        return None
+        return 0.0
     return _score_em(datas[-1], fatos)
 
 
 def serie_evolucao(
     doc: pd.DataFrame, ind: pd.DataFrame, tre: pd.DataFrame, qua: pd.DataFrame
 ) -> pd.DataFrame:
-    """Score final por data de avaliação (para o gráfico de linha)."""
+    """Score final por data de avaliação (linha do tempo)."""
     fatos = [doc, ind, tre, qua]
     ops = sorted({o for df in fatos for o in df["Operação"].dropna().unique()})
     linhas = []
@@ -266,9 +246,6 @@ def serie_evolucao(
     return pd.DataFrame(linhas)
 
 
-# ---------------------------------------------------------------------------
-# Plano de Ação
-# ---------------------------------------------------------------------------
 def metricas_plano(pa: pd.DataFrame) -> dict:
     hoje = pd.Timestamp.today().normalize()
     total = len(pa)
@@ -294,5 +271,7 @@ def metricas_plano(pa: pd.DataFrame) -> dict:
         "Concluídas": concluidas,
         "Vencidas": vencidas,
         "A Vencer (30 dias)": a_vencer,
-        "% Concluídas": (concluidas / total * 100) if total else None,
+        "% Concluídas": round(concluidas / total * 100, 2) if total else 0.0,
     }
+
+

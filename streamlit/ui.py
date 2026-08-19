@@ -1,10 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Helpers de interface — visual corporativo refinado.
-
-Header limpo, navegação superior com fade na troca de página, cards
-minimalistas com acento verde, chips coloridos e tabelas estilizadas.
-"""
-from __future__ import annotations
+"""Interface padrão das páginas: estilos, cards, navegação e tabelas."""
 
 from pathlib import Path
 
@@ -22,7 +17,7 @@ from theme import (
     VERDE_CLARO,
     VERDE_ESCURO,
     cor_faixa,
-    cor_score,
+    cor_score_gradiente,
     cor_status,
 )
 
@@ -30,6 +25,9 @@ ASSETS = Path(__file__).resolve().parent / "assets"
 
 CSS = f"""
 <style>
+    @import url('https://fonts.googleapis.com/css2?family=Stack+Sans+Text:wght@400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Stack+Sans+Notch:wght@500&display=swap');
+
     /* ===== Globais ===== */
     .stApp {{
         background-color: {FUNDO};
@@ -38,19 +36,23 @@ CSS = f"""
         padding-top: 1.4rem;
         padding-bottom: 3rem;
         max-width: 1400px;
-        animation: pageFade .55s cubic-bezier(.25,.1,.25,1) both;
+        animation: pageFade .55s cubic-bezier(.25,.1,.25,1) backwards;
     }}
     @keyframes pageFade {{
         from {{ opacity: 0; transform: translateY(10px); }}
         to {{ opacity: 1; transform: translateY(0); }}
     }}
     h1, h2, h3, h4, h5, h6 {{
-        font-family: "Segoe UI", -apple-system, sans-serif !important;
+        font-family: "Stack Sans Text", "Segoe UI", -apple-system, sans-serif !important;
         color: {PRETO} !important;
         letter-spacing: -0.01em;
     }}
-    p, span, div, label, .stMarkdown, .stDataFrame {{
-        font-family: "Segoe UI", -apple-system, sans-serif !important;
+p, span, div, label, button, input, textarea, select, .stMarkdown, .stDataFrame {{
+        font-family: "Stack Sans Text", "Segoe UI", -apple-system, sans-serif !important;
+    }}
+    b, strong, .kpi-value, h1, h2, h3, h4, h5, h6 {{
+        font-family: "Stack Sans Notch", "Stack Sans Text", "Segoe UI", sans-serif !important;
+        font-weight: 500 !important;
     }}
 
     /* ===== Header ===== */
@@ -83,7 +85,7 @@ CSS = f"""
     .dbm-nav .stButton {{
         margin-bottom: 4px;
     }}
-    .dbm-nav .stButton > button {{
+.dbm-nav .stButton > button {{
         width: 100%;
         text-align: left;
         background: transparent;
@@ -93,13 +95,14 @@ CSS = f"""
         padding: 9px 14px;
         border-radius: 9px;
         border: 1px solid transparent;
-        transition: background-color .3s ease, color .3s ease, transform .2s ease, box-shadow .3s ease;
+        transition: background-color .7s cubic-bezier(.25,.1,.25,1), color .7s cubic-bezier(.25,.1,.25,1), transform .5s cubic-bezier(.25,.1,.25,1), box-shadow .7s cubic-bezier(.25,.1,.25,1), border-color .7s cubic-bezier(.25,.1,.25,1);
         white-space: nowrap;
     }}
     .dbm-nav .stButton > button:hover {{
         background: {VERDE_CLARO};
         color: {VERDE_ESCURO};
-        transform: translateX(2px);
+        transform: translateX(3px);
+        border-color: rgba(5,150,105,.25);
     }}
     .dbm-nav .stButton > button:focus {{
         box-shadow: none;
@@ -116,6 +119,12 @@ CSS = f"""
         box-shadow: 0 2px 6px rgba(5,150,105,.35);
         white-space: nowrap;
         margin-bottom: 4px;
+        animation: navFadeIn .7s cubic-bezier(.25,.1,.25,1) backwards;
+        transition: background-color .7s cubic-bezier(.25,.1,.25,1), color .7s cubic-bezier(.25,.1,.25,1), box-shadow .7s cubic-bezier(.25,.1,.25,1);
+    }}
+    @keyframes navFadeIn {{
+        from {{ opacity: 0; transform: translateX(-6px); }}
+        to {{ opacity: 1; transform: translateX(0); }}
     }}
 
     /* ===== Cabeçalho da página ===== */
@@ -149,7 +158,7 @@ CSS = f"""
         padding: 20px 22px;
         height: 100%;
         box-shadow: 0 1px 4px rgba(15,23,42,.05);
-        transition: box-shadow .25s ease, transform .25s ease, border-color .25s ease;
+        transition: box-shadow .45s cubic-bezier(.25,.1,.25,1), transform .35s cubic-bezier(.25,.1,.25,1), border-color .45s cubic-bezier(.25,.1,.25,1);
     }}
     .dbm-card:hover {{
         box-shadow: 0 6px 20px rgba(15,23,42,.09);
@@ -197,7 +206,7 @@ CSS = f"""
     .dbm-tooltip-wrap {{
         max-height: 0;
         overflow: hidden;
-        transition: max-height .2s ease, padding .2s ease;
+        transition: max-height .45s cubic-bezier(.25,.1,.25,1), padding .35s cubic-bezier(.25,.1,.25,1);
         padding: 0;
     }}
     .dbm-tooltip {{
@@ -240,41 +249,58 @@ CSS = f"""
         background: {VERDE};
     }}
 
-    /* ===== Sidebar ===== */
+/* ===== Sidebar ===== */
     section[data-testid="stSidebar"] {{
         background: {BRANCO};
         border-right: 1px solid {BORDA};
+        transition: transform .7s cubic-bezier(.25,.1,.25,1), min-width .7s cubic-bezier(.25,.1,.25,1), max-width .7s cubic-bezier(.25,.1,.25,1), background-color .5s cubic-bezier(.25,.1,.25,1) !important;
+    }}
+    section[data-testid="stSidebar"] > div {{
+        transition: transform .7s cubic-bezier(.25,.1,.25,1), opacity .6s cubic-bezier(.25,.1,.25,1);
+    }}
+    [data-testid="stSidebarCollapseButton"],
+    [data-testid="stExpandSidebarButton"] {{
+        transition: transform .6s cubic-bezier(.25,.1,.25,1), opacity .6s cubic-bezier(.25,.1,.25,1), background-color .6s cubic-bezier(.25,.1,.25,1);
+    }}
+    [data-testid="stSidebarCollapseButton"]:hover,
+    [data-testid="stExpandSidebarButton"]:hover {{
+        transform: translateY(-2px);
+        background-color: {VERDE_CLARO};
     }}
     section[data-testid="stSidebar"] .stMarkdown h3 {{
         color: {PRETO};
     }}
-    [data-testid="stSidebarCollapseButton"] span {{
-        font-family: "Segoe UI", -apple-system, sans-serif !important;
+    [data-testid="stSidebarCollapseButton"] span,
+    [data-testid="stExpandSidebarButton"] span {{
+        font-family: "Stack Sans Text", "Segoe UI", -apple-system, sans-serif !important;
         font-size: 0 !important;
         visibility: hidden;
     }}
     [data-testid="stSidebarCollapseButton"] span::after {{
         content: "‹";
-        font-family: "Segoe UI", -apple-system, sans-serif !important;
+        font-family: "Stack Sans Text", "Segoe UI", -apple-system, sans-serif !important;
         font-size: 18px !important;
         font-weight: 700;
         color: {TEXTO_MUTE};
         visibility: visible;
         line-height: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
     }}
-    [data-testid="stSidebarControlButton"] span {{
-        font-family: "Segoe UI", -apple-system, sans-serif !important;
-        font-size: 0 !important;
-        visibility: hidden;
-    }}
-    [data-testid="stSidebarControlButton"] span::after {{
+    [data-testid="stExpandSidebarButton"] span::after {{
         content: "›";
-        font-family: "Segoe UI", -apple-system, sans-serif !important;
+        font-family: "Stack Sans Text", "Segoe UI", -apple-system, sans-serif !important;
         font-size: 18px !important;
         font-weight: 700;
         color: {TEXTO_MUTE};
         visibility: visible;
         line-height: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
     }}
 
     /* ===== Tabelas HTML ===== */
@@ -311,12 +337,35 @@ CSS = f"""
         border-radius: 10px;
         border: 1px solid {BORDA};
         font-weight: 600;
-        transition: all .2s ease;
+        transition: all .45s cubic-bezier(.25,.1,.25,1);
     }}
-    .stButton > button:hover {{
+.stButton > button:hover {{
         border-color: {VERDE};
         color: {VERDE_ESCURO};
         transform: translateY(-1px);
+    }}
+
+    /* ===== Responsividade ===== */
+    @media (max-width: 768px) {{
+        .block-container {{
+            padding-top: 1rem;
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }}
+        .app-header h1, .page-head h1 {{
+            font-size: 1.25rem;
+        }}
+        .dbm-card {{
+            padding: 16px 18px;
+        }}
+        .dbm-card .kpi-value {{
+            font-size: 1.7rem;
+        }}
+        .dbm-table {{
+            display: block;
+            overflow-x: auto;
+            white-space: nowrap;
+        }}
     }}
 </style>
 """
@@ -337,13 +386,8 @@ def aplicar_css() -> None:
 
 
 def navegacao(atual: str = "") -> None:
-    """Navegação vertical na sidebar. O item ativo fica destacado em verde e
-    os botões desvanecem (fade) ao trocar de página (animação de entrada)."""
+    """Menu lateral. A página atual fica destacada em verde."""
     with st.sidebar:
-        st.markdown(
-            '<div class="dbm-nav"><div class="dbm-nav-item" style="margin-bottom:10px;background:#EDF9F3;color:#065F46;box-shadow:none;font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;">Navegação</div></div>',
-            unsafe_allow_html=True,
-        )
         for arquivo, nome in NAV_ITENS:
             if arquivo == atual:
                 st.markdown(f'<div class="dbm-nav-item">{nome}</div>', unsafe_allow_html=True)
@@ -353,7 +397,7 @@ def navegacao(atual: str = "") -> None:
 
 
 def header(pagina: str, subtitulo: str = "") -> None:
-    """Cabeçalho limpo com título e subtítulo, sem marca institucional."""
+    """Cabeçalho com título e subtítulo."""
     st.markdown(
         f"""
         <div class="app-header">
@@ -435,6 +479,18 @@ def chip_evolucao(ev: str) -> str:
     return f'<span style="color:{cor};font-weight:700">{ev}</span>'
 
 
+def chip_score(valor) -> str:
+    """Score com fundo em gradiente verde -> amarelo -> vermelho."""
+    if valor is None or (isinstance(valor, float) and pd.isna(valor)):
+        return "—"
+    cor = cor_score_gradiente(valor)
+    return (
+        f'<span style="background:{cor};color:#fff;padding:2px 10px;'
+        f'border-radius:999px;font-size:.78rem;font-weight:700;white-space:nowrap">'
+        f"{valor:.2f}</span>"
+    )
+
+
 def chip_status(status: str) -> str:
     if not status:
         return "—"
@@ -443,5 +499,5 @@ def chip_status(status: str) -> str:
 
 
 def tabela_html(df: pd.DataFrame) -> str:
-    """Converte um DataFrame já com chips HTML em tabela estilizada."""
+    """DataFrame (já com chips HTML) como tabela estilizada."""
     return f'<table class="dbm-table">{df.to_html(escape=False, index=False)}</table>'

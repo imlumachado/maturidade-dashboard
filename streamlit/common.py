@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
-"""Compartilhado entre as páginas: carregamento de dados e filtros globais."""
-from __future__ import annotations
+"""Carga dos dados e filtros usados por todas as páginas."""
 
 import pandas as pd
 import streamlit as st
 
 from data_loader import _mtime, carregar_dados as _carregar
-from theme import CINZA_ESCURO, VERDE, BRANCO
 
 _FATOS = ("Documentacao", "Indicadores", "Treinamento", "Qualidade")
 
@@ -24,13 +22,7 @@ def _filtrar_data(df: pd.DataFrame, inicio, fim) -> pd.DataFrame:
 
 
 def preparar_dados() -> None:
-    """Carrega os dados e grava as versões filtradas em st.session_state.
-
-    - st.session_state.dados   : tabelas originais
-    - st.session_state.filt    : filtradas por operação + data (páginas de análise)
-    - st.session_state.filt_op : filtradas apenas por operação (página Evolução)
-    - st.session_state.plano   : PlanoAcao filtrado por operação
-    """
+    """Carrega os dados e guarda as versões filtradas no session_state."""
     dados = _carregar_cache()
     st.session_state.dados = dados
 
@@ -38,37 +30,49 @@ def preparar_dados() -> None:
         {o for df in dados.values() if not df.empty for o in df["Operação"].dropna().unique()}
     )
 
-    with st.sidebar:
-        st.markdown(
-            """
-            <style>
-            [data-testid="stSidebar"] > div:first-child { background: #ffffff; }
-            [data-testid="stSidebarNav"] { display: none; }
-            </style>
-            """,
-            unsafe_allow_html=True,
-        )
-        st.markdown("#### Filtros")
+    st.markdown(
+        """
+        <style>
+        [data-testid="stSidebarNav"] { display: none; }
+        [data-testid="stWidgetLabel"] { display: none; }
+        .stSelectbox div[data-baseweb="select"] > div,
+        .stDateInput div[data-baseweb="input"] { border-radius: 9px !important; }
+        .filtros-row [data-testid="stWidget"] { width: auto !important; }
+        [data-testid="stMultiSelect"] [data-testid="stMultiSelectTagsContainer"] { display: none !important; }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+    datas_todas = pd.concat(
+        [dados[f]["Data da avaliação"] for f in _FATOS]
+    ).dropna()
+    if datas_todas.empty:
+        inicio = fim = None
+    else:
+        minimo, maximo = datas_todas.min().date(), datas_todas.max().date()
+
+    vazio, col_op, col_periodo = st.columns([3, 1, 1], vertical_alignment="bottom")
+    with col_op:
         selecao_ops = st.multiselect(
             "Operação",
             ops,
             default=ops,
-            help="Selecione uma ou mais operações (vazio = todas).",
+            help="Selecione as operações para filtrar (vazio = todas).",
         )
-        datas_todas = pd.concat(
-            [dados[f]["Data da avaliação"] for f in _FATOS]
-        ).dropna()
+        selecao_ops = set(selecao_ops)
+    with col_periodo:
         if datas_todas.empty:
-            inicio = fim = None
             st.caption("Nenhuma avaliação registrada ainda.")
+            inicio = fim = None
         else:
-            minimo, maximo = datas_todas.min().date(), datas_todas.max().date()
             try:
                 periodo = st.date_input(
                     "Período de avaliação",
                     value=(minimo, maximo),
                     min_value=minimo,
                     max_value=maximo,
+                    format="DD/MM/YYYY",
+                    key="periodo_ui",
                 )
             except Exception:
                 periodo = (minimo, maximo)
@@ -76,12 +80,6 @@ def preparar_dados() -> None:
                 inicio, fim = periodo[0], periodo[1] if len(periodo) > 1 else periodo[0]
             else:
                 inicio = fim = periodo
-        st.caption("Fonte: formulário F_O_025_Formulario_Maturidade_Planos.xlsx")
-
-    if not selecao_ops:
-        selecao_ops = set(ops)
-    else:
-        selecao_ops = set(selecao_ops)
 
     st.session_state.filt = {}
     st.session_state.filt_op = {}

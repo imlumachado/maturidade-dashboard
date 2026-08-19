@@ -51,11 +51,23 @@ def cor_status(status):
     return CORES_STATUS.get(status, "#94A3B8")
 
 
-def cor_score(score):
+def cor_score_gradiente(score, de="#DC2626", meio="#F59E0B", ate="#059669"):
+    """Interpola a cor do score num gradiente vermelho -> amarelo -> verde (0-100)."""
     if score is None:
         return "#94A3B8"
-    if score <= 35:
-        return "#DC2626"
-    if score <= 75:
-        return "#F59E0B"
-    return "#059669"
+    try:
+        score = float(score)
+    except (TypeError, ValueError):
+        return "#94A3B8"
+    score = max(0.0, min(100.0, score))
+
+    def _hex2rgb(h):
+        h = h.lstrip("#")
+        return tuple(int(h[i : i + 2], 16) for i in (0, 2, 4))
+
+    def _rgb2hex(c):
+        return "#{:02X}{:02X}{:02X}".format(*[round(v) for v in c])
+
+    a, b = (_hex2rgb(de), _hex2rgb(meio)) if score <= 50 else (_hex2rgb(meio), _hex2rgb(ate))
+    t = score / 50.0 if score <= 50 else (score - 50.0) / 50.0
+    return _rgb2hex(tuple(a[i] + (b[i] - a[i]) * t for i in range(3)))

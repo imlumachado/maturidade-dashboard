@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Dashboard de Análise de Maturidade — Página Geral."""
+"""Visão Geral do dashboard de maturidade."""
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
@@ -19,12 +19,13 @@ from metrics import (
     scores_por_operacao,
     ultimo_ciclo_global,
 )
-from theme import CORES_FRENTES, VERDE, PRETO, TEXTO_MUTE
+from theme import CORES_FRENTES, PRETO, TEXTO_MUTE, cor_score_gradiente
 from ui import (
     aplicar_css,
     card,
     chip_evolucao,
     chip_faixa,
+    chip_score,
     empty_state,
     linha_cards,
     navegacao,
@@ -35,11 +36,11 @@ from ui import (
 
 
 def _fmt_pct(v):
-    return f"{v:.0f}%" if v is not None else "—"
+    return f"{v:.2f}%" if v is not None else "0.00%"
 
 
 def _fmt_score(v):
-    return f"{v:.1f}" if v is not None else "—"
+    return f"{v:.2f}" if v is not None else "0.00"
 
 
 def _fmt_int(v):
@@ -78,7 +79,7 @@ linha_cards(
             "titulo": "Score Final",
             "valor": score_ultimo,
             "sub": faixa or "",
-            "cor": VERDE,
+            "cor": cor_score_gradiente(score_ultimo),
             "valor_format": _fmt_score,
             "tooltip": f"Operações avaliadas: <b>{geral['Operações Avaliadas']}</b><br>Ações vencidas: <b>{metricas_pa['Vencidas']}</b>",
         },
@@ -106,7 +107,7 @@ if not scores.empty:
                 x=scores["Operação"],
                 y=scores[frente].fillna(0),
                 marker_color=CORES_FRENTES[frente],
-                text=[f"{v:.0f}" if pd.notna(v) else "" for v in scores[frente]],
+                text=[f"{v:.2f}" if pd.notna(v) else "" for v in scores[frente]],
                 textposition="outside",
             )
         )
@@ -125,7 +126,7 @@ if not scores.empty:
         yaxis_title="Score (0–100)",
         yaxis=dict(range=[0, 100], gridcolor="#E2E8F0"),
         xaxis=dict(gridcolor="rgba(0,0,0,0)"),
-        font=dict(family="Segoe UI", color=TEXTO_MUTE),
+        font=dict(family="Stack Sans Text, Segoe UI", color=TEXTO_MUTE),
         margin=dict(l=10, r=10, t=30, b=10),
         legend=dict(orientation="h", y=1.12),
         paper_bgcolor="rgba(0,0,0,0)",
@@ -141,6 +142,8 @@ if not evol.empty:
     evol_display = evol.copy()
     evol_display["Faixa"] = evol_display["Faixa"].map(chip_faixa)
     evol_display["Evolução"] = evol_display["Evolução"].map(chip_evolucao)
+    for col in ("Score Final Último Ciclo", "Score Final Ciclo Anterior"):
+        evol_display[col] = evol_display[col].map(chip_score)
     st.markdown(
         tabela_html(
             evol_display[
@@ -152,7 +155,7 @@ if not evol.empty:
                     "Variação",
                     "Evolução",
                 ]
-            ].astype(object).map(lambda v: f"{v:.1f}" if isinstance(v, (int, float)) else v)
+            ].astype(object).map(lambda v: f"{v:.2f}" if isinstance(v, (int, float)) else v)
         ),
         unsafe_allow_html=True,
     )

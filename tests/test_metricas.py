@@ -26,6 +26,7 @@ from metrics import (  # noqa: E402
     serie_evolucao,
     ultimo_ciclo_global,
 )
+from theme import cor_score_gradiente  # noqa: E402
 
 FORMULARIO = Path(__file__).resolve().parent.parent / "formulario"
 
@@ -85,6 +86,33 @@ def test_faixas():
     assert faixa_maturidade(76) == "Boa maturidade"
     assert faixa_maturidade(86) == "Excelente maturidade"
     assert faixa_maturidade(None) is None
+
+
+# ---------------------------------------------------------------------------
+# Gradiente de scores
+# ---------------------------------------------------------------------------
+def test_cor_score_gradiente_extremos():
+    assert cor_score_gradiente(0) == "#DC2626"
+    assert cor_score_gradiente(100) == "#059669"
+
+
+def test_cor_score_gradiente_meio():
+    assert cor_score_gradiente(50) == "#F59E0B"
+
+
+def test_cor_score_gradiente_ordem():
+    def _canal(h, idx):
+        h = h.lstrip("#")
+        return int(h[idx * 2 : idx * 2 + 2], 16)
+
+    r_baixo, g_baixo = _canal(cor_score_gradiente(10), 0), _canal(cor_score_gradiente(10), 1)
+    r_alto, g_alto = _canal(cor_score_gradiente(90), 0), _canal(cor_score_gradiente(90), 1)
+    assert r_baixo > g_baixo  # score baixo -> vermelho predomina
+    assert g_alto > r_alto  # score alto -> verde predomina
+
+
+def test_cor_score_gradiente_none():
+    assert cor_score_gradiente(None) == "#94A3B8"
 
 
 # ---------------------------------------------------------------------------

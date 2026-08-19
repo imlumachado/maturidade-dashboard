@@ -43,7 +43,7 @@ def _fmt_int(v):
 
 
 def _fmt_pct(v):
-    return f"{v:.0f}%" if v is not None else "—"
+    return f"{v:.2f}%" if v is not None else "0.00%"
 
 
 secao("Indicadores-chave")
@@ -59,8 +59,7 @@ linha_cards(
     ]
 )
 
-with st.sidebar:
-    st.markdown("#### Plano de Ação")
+with st.expander("Filtros do Plano de Ação", expanded=False):
     status_opcoes = sorted(pa["Status da Ação"].dropna().unique().tolist())
     status_sel = st.multiselect("Status da Ação", status_opcoes, default=status_opcoes)
     resp_opcoes = sorted(pa["Responsável"].dropna().astype(str).unique().tolist())
@@ -88,7 +87,7 @@ with c1:
     )
     fig.update_layout(
         height=320,
-        font=dict(family="Segoe UI", color=TEXTO_MUTE),
+        font=dict(family="Stack Sans Text, Segoe UI", color=TEXTO_MUTE),
         yaxis=dict(gridcolor="#E2E8F0"),
         margin=dict(l=10, r=10, t=20, b=10),
         paper_bgcolor="rgba(0,0,0,0)",
@@ -109,7 +108,7 @@ with c2:
     )
     fig2.update_layout(
         height=320,
-        font=dict(family="Segoe UI", color=TEXTO_MUTE),
+        font=dict(family="Stack Sans Text, Segoe UI", color=TEXTO_MUTE),
         margin=dict(l=10, r=10, t=20, b=10),
         showlegend=True,
         paper_bgcolor="rgba(0,0,0,0)",
@@ -120,7 +119,7 @@ secao("Detalhe das Ações")
 exibir = pa.copy()
 exibir["Status da Ação"] = exibir["Status da Ação"].map(chip_status)
 hoje = pd.Timestamp.today().normalize()
-exibir["Prazo"] = exibir["Prazo"].map(lambda d: d.date() if pd.notna(d) else d)
+exibir["Prazo"] = exibir["Prazo"].map(lambda d: d.strftime("%d/%m/%Y") if pd.notna(d) else "—")
 vencida = pa["Prazo"].notna() & (pa["Prazo"] < hoje) & (pa["Status da Ação"] != "Concluído")
 exibir.loc[vencida.values, "Prazo"] = exibir.loc[vencida.values, "Prazo"].map(
     lambda d: f"<span style='color:#DC2626;font-weight:700'>⚠️ {d}</span>"
