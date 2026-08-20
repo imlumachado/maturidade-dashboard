@@ -8,7 +8,7 @@ st.set_page_config(page_title="Plano de Ação", page_icon="✅", layout="wide")
 
 from common import preparar_dados
 from metrics import metricas_plano
-from theme import CORES_STATUS, PRETO, TEXTO_MUTE
+from theme import CORES_STATUS, PRETO, TEXTO_MUTE, fmt_num
 from ui import (
     aplicar_css,
     chip_status,
@@ -43,7 +43,7 @@ def _fmt_int(v):
 
 
 def _fmt_pct(v):
-    return f"{v:.2f}%" if v is not None else "0.00%"
+    return f"{fmt_num(v)}%" if v is not None else "0%"
 
 
 secao("Indicadores-chave")

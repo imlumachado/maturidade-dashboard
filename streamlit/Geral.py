@@ -19,7 +19,7 @@ from metrics import (
     scores_por_operacao,
     ultimo_ciclo_global,
 )
-from theme import CORES_FRENTES, PRETO, TEXTO_MUTE, cor_score_gradiente
+from theme import CORES_FRENTES, PRETO, TEXTO_MUTE, cor_score_gradiente, fmt_num
 from ui import (
     aplicar_css,
     card,
@@ -36,11 +36,11 @@ from ui import (
 
 
 def _fmt_pct(v):
-    return f"{v:.2f}%" if v is not None else "0.00%"
+    return f"{fmt_num(v)}%" if v is not None else "0%"
 
 
 def _fmt_score(v):
-    return f"{v:.2f}" if v is not None else "0.00"
+    return fmt_num(v) if v is not None else "—"
 
 
 def _fmt_int(v):
@@ -107,7 +107,7 @@ if not scores.empty:
                 x=scores["Operação"],
                 y=scores[frente].fillna(0),
                 marker_color=CORES_FRENTES[frente],
-                text=[f"{v:.2f}" if pd.notna(v) else "" for v in scores[frente]],
+                text=[fmt_num(v) if pd.notna(v) else "" for v in scores[frente]],
                 textposition="outside",
             )
         )
@@ -155,7 +155,7 @@ if not evol.empty:
                     "Variação",
                     "Evolução",
                 ]
-            ].astype(object).map(lambda v: f"{v:.2f}" if isinstance(v, (int, float)) else v)
+            ].astype(object).map(lambda v: fmt_num(v) if isinstance(v, (int, float)) else v)
         ),
         unsafe_allow_html=True,
     )

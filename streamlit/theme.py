@@ -71,3 +71,18 @@ def cor_score_gradiente(score, de="#DC2626", meio="#F59E0B", ate="#059669"):
     a, b = (_hex2rgb(de), _hex2rgb(meio)) if score <= 50 else (_hex2rgb(meio), _hex2rgb(ate))
     t = score / 50.0 if score <= 50 else (score - 50.0) / 50.0
     return _rgb2hex(tuple(a[i] + (b[i] - a[i]) * t for i in range(3)))
+
+
+def fmt_num(v, casas=2):
+    """Formata número com até `casas` decimais, sem zeros à direita após a vírgula.
+
+    Ex.: 66.70 -> "66.7", 67.00 -> "67", 66.72 -> "66.72".
+    """
+    if v is None:
+        return None
+    try:
+        v = float(v)
+    except (TypeError, ValueError):
+        return str(v)
+    texto = f"{v:.{casas}f}".rstrip("0").rstrip(".")
+    return texto

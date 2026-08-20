@@ -6,7 +6,7 @@ import plotly.graph_objects as go
 import streamlit as st
 
 from metrics import metricas_frente
-from theme import TEXTO_MUTE, cor_score_gradiente
+from theme import TEXTO_MUTE, cor_score_gradiente, fmt_num
 from ui import (
     aplicar_css,
     empty_state,
@@ -17,11 +17,11 @@ from ui import (
 
 
 def _fmt_pct(v):
-    return f"{v:.2f}%" if v is not None else "0.00%"
+    return f"{fmt_num(v)}%" if v is not None else "0%"
 
 
 def _fmt_score(v):
-    return f"{v:.2f}" if v is not None else "0.00"
+    return fmt_num(v) if v is not None else "—"
 
 
 def _fmt_int(v):
@@ -109,7 +109,7 @@ def renderizar(
             x=por_op["Operação"],
             y=por_op["ScoreLinha"],
             marker_color=cor_frente,
-            text=[f"{v:.2f}" for v in por_op["ScoreLinha"]],
+            text=[fmt_num(v) for v in por_op["ScoreLinha"]],
             textposition="outside",
         )
     )

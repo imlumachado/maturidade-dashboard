@@ -8,7 +8,7 @@ st.set_page_config(page_title="Evolução", page_icon="📈", layout="wide")
 
 from common import dados_filtrados_op, preparar_dados
 from metrics import evolucao, serie_evolucao
-from theme import PRETO, TEXTO_MUTE, VERDE
+from theme import PRETO, TEXTO_MUTE, VERDE, fmt_num
 from ui import (
     aplicar_css,
     chip_evolucao,
@@ -88,7 +88,7 @@ if not evol.empty:
                     "Faixa",
                     "Evolução",
                 ]
-            ].astype(object).map(lambda v: f"{v:.2f}" if isinstance(v, (int, float)) else v)
+            ].astype(object).map(lambda v: fmt_num(v) if isinstance(v, (int, float)) else v)
         ),
         unsafe_allow_html=True,
     )

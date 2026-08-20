@@ -19,6 +19,7 @@ from theme import (
     cor_faixa,
     cor_score_gradiente,
     cor_status,
+    fmt_num,
 )
 
 ASSETS = Path(__file__).resolve().parent / "assets"
@@ -526,7 +527,7 @@ def chip_score(valor) -> str:
     return (
         f'<span style="background:{cor};color:#fff;padding:2px 10px;'
         f'border-radius:999px;font-size:.78rem;font-weight:700;white-space:nowrap">'
-        f"{valor:.2f}</span>"
+        f"{fmt_num(valor)}</span>"
     )
 
 
