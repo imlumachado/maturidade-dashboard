@@ -346,6 +346,31 @@ p, span, div, label, button, input, textarea, select, .stMarkdown, .stDataFrame 
     }}
 
     /* ===== Responsividade ===== */
+    /* Colunas do Streamlit quebram para uma por linha em telas menores */
+    [data-testid="stHorizontalBlock"] {{
+        flex-wrap: wrap !important;
+    }}
+    @media (max-width: 1200px) {{
+        section[data-testid="stSidebar"] {{
+            max-width: 260px !important;
+        }}
+        .block-container {{
+            max-width: 100%;
+        }}
+    }}
+    @media (max-width: 900px) {{
+        [data-testid="stHorizontalBlock"] > [data-testid="stColumn"] {{
+            min-width: min(100%, 240px) !important;
+            flex-grow: 1 !important;
+        }}
+    }}
+    @media (max-width: 768px) {{
+        section[data-testid="stSidebar"] {{
+            max-width: 100% !important;
+            min-width: 0 !important;
+            width: min(85vw, 320px) !important;
+        }}
+    }}
     @media (max-width: 768px) {{
         .block-container {{
             padding-top: 1rem;
@@ -365,6 +390,20 @@ p, span, div, label, button, input, textarea, select, .stMarkdown, .stDataFrame 
             display: block;
             overflow-x: auto;
             white-space: nowrap;
+        }}
+        .dbm-card .kpi-value small {{
+            font-size: .95rem;
+        }}
+    }}
+    @media (max-width: 480px) {{
+        .app-header h1, .page-head h1 {{
+            font-size: 1.1rem;
+        }}
+        .dbm-card .kpi-value {{
+            font-size: 1.5rem;
+        }}
+        .dbm-section h4 {{
+            font-size: .95rem;
         }}
     }}
 </style>

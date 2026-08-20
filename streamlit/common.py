@@ -37,7 +37,6 @@ def preparar_dados() -> None:
         [data-testid="stWidgetLabel"] { display: none; }
         .stSelectbox div[data-baseweb="select"] > div,
         .stDateInput div[data-baseweb="input"] { border-radius: 9px !important; }
-        .filtros-row [data-testid="stWidget"] { width: auto !important; }
         [data-testid="stMultiSelect"] [data-testid="stMultiSelectTagsContainer"] { display: none !important; }
         </style>
         """,
@@ -51,7 +50,7 @@ def preparar_dados() -> None:
     else:
         minimo, maximo = datas_todas.min().date(), datas_todas.max().date()
 
-    vazio, col_op, col_periodo = st.columns([3, 1, 1], vertical_alignment="bottom")
+    col_op, col_periodo = st.columns([2, 1], vertical_alignment="bottom")
     with col_op:
         selecao_ops = st.multiselect(
             "Operação",
