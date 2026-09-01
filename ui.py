@@ -449,8 +449,6 @@ p, span, div, label, button, input, textarea, select, .stMarkdown, .stDataFrame 
         content: "↓";
     }}
     [data-testid="stExpander"] [data-testid="stExpanderDetails"] {{
-        position: sticky;
-        top: 20px;
         z-index: 100;
         background: white;
         border: 1px solid #E2E8F0;
