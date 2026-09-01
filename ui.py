@@ -449,7 +449,8 @@ p, span, div, label, button, input, textarea, select, .stMarkdown, .stDataFrame 
         content: "↓";
     }}
     [data-testid="stExpander"] [data-testid="stExpanderDetails"] {{
-        position: absolute;
+        position: sticky;
+        top: 20px;
         z-index: 100;
         background: white;
         border: 1px solid #E2E8F0;
@@ -457,6 +458,8 @@ p, span, div, label, button, input, textarea, select, .stMarkdown, .stDataFrame 
         box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         padding: 12px;
         min-width: 250px;
+        max-height: 70vh;
+        overflow-y: auto;
     }}
 
     /* ===== Área de Filtros ===== */

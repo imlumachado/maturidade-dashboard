@@ -116,21 +116,6 @@ def renderizar(
     fig.update_layout(**_layout_fig())
     st.plotly_chart(fig, width="stretch")
 
-    secao("Sub-scores por Operação")
-    fig2 = go.Figure()
-    for rotulo, sub in labels:
-        serie = df.groupby(col_item)[sub].mean() * 100
-        fig2.add_trace(
-            go.Scatter(
-                name=rotulo,
-                x=serie.index,
-                y=serie.values,
-                mode="lines+markers",
-            )
-        )
-    fig2.update_layout(**_layout_fig())
-    st.plotly_chart(fig2, width="stretch")
-
     secao("Detalhe")
     visiveis = [c for c in cols_tabela if c in df.columns]
     st.dataframe(
