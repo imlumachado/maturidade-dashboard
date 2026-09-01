@@ -2,7 +2,6 @@
 """Layout padrão das páginas de frente (Documentação, Indicadores, Treinamento, Qualidade)."""
 
 import pandas as pd
-import plotly.graph_objects as go
 import streamlit as st
 
 from metrics import metricas_frente
@@ -101,20 +100,6 @@ def renderizar(
         )
     cards.append({"titulo": f"Graves ({titulo})", "valor": m["Graves"], "cor": "#DC2626", "valor_format": _fmt_int})
     linha_cards(cards)
-
-    secao(f"Score {titulo} por Operação")
-    por_op = df.groupby(col_item)["ScoreLinha"].mean().sort_values(ascending=False).reset_index()
-    fig = go.Figure(
-        go.Bar(
-            x=por_op[col_item],
-            y=por_op["ScoreLinha"],
-            marker_color=cor_frente,
-            text=[fmt_num(v) for v in por_op["ScoreLinha"]],
-            textposition="outside",
-        )
-    )
-    fig.update_layout(**_layout_fig())
-    st.plotly_chart(fig, width="stretch")
 
     secao("Detalhe")
     visiveis = [c for c in cols_tabela if c in df.columns]
