@@ -42,8 +42,7 @@ def preparar_dados() -> None:
     if "ops_sel" not in st.session_state:
         st.session_state.ops_sel = ops_todas
 
-    if "expander_ops_open" not in st.session_state:
-        st.session_state.expander_ops_open = False
+    st.markdown('<div style="height:120px"></div>', unsafe_allow_html=True)
 
     _, col_filtros = st.columns([2, 1])
     with col_filtros:
@@ -57,11 +56,11 @@ def preparar_dados() -> None:
                     st.session_state[f"op_{op}"] = True
                 st.rerun()
 
-            with st.expander(
-                f"{len(st.session_state.ops_sel)}/{len(ops)} selecionadas",
-                expanded=st.session_state.expander_ops_open,
-            ):
-                st.session_state.expander_ops_open = True
+            n_sel = len(st.session_state.ops_sel)
+            n_total = len(ops)
+            label = f"{n_sel}/{n_total} selecionadas"
+
+            with st.expander(label, expanded=False):
                 for op in ops:
                     marcado = op in st.session_state.ops_sel
                     if st.checkbox(op, value=marcado, key=f"op_{op}"):

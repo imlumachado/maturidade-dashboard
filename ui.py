@@ -448,6 +448,16 @@ p, span, div, label, button, input, textarea, select, .stMarkdown, .stDataFrame 
     [data-testid="stExpander"][open] summary::before {{
         content: "↓";
     }}
+    [data-testid="stExpander"] [data-testid="stExpanderDetails"] {{
+        position: absolute;
+        z-index: 100;
+        background: white;
+        border: 1px solid #E2E8F0;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        padding: 12px;
+        min-width: 250px;
+    }}
 
     /* ===== Área de Filtros ===== */
     [data-testid="stHorizontalBlock"] [data-testid="stColumn"] {{
