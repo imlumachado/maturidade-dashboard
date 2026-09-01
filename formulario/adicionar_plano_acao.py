@@ -7,8 +7,8 @@ from openpyxl import load_workbook
 from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.datavalidation import DataValidation
 
-ORIGEM_GLOB = r"C:\Users\User\Downloads\F_O_025_GOCO*"
-DESTINO = Path(__file__).resolve().parent / "F_O_025_Formulario_Maturidade_Planos.xlsx"
+ORIGEM_GLOB = r"C:\Users\User\Downloads\F.O.091.GOCO*"
+DESTINO = Path(__file__).resolve().parent / "F.O.091.GOCO - Analise de Maturidade em Processos.xlsx"
 
 ABAS = ["Avaliação", "Indicadores", "Treinamento"]
 COLUNAS_NOVAS = ["Plano de Ação", "Responsável", "Prazo", "Status da Ação"]

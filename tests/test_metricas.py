@@ -245,7 +245,7 @@ def test_metricas_plano():
 # ---------------------------------------------------------------------------
 # Carregamento do formulário real (se existir)
 # ---------------------------------------------------------------------------
-FORMULARIO_XLSX = FORMULARIO / "F_O_025_Formulario_Maturidade_Planos.xlsx"
+FORMULARIO_XLSX = FORMULARIO / "F.O.091.GOCO - Analise de Maturidade em Processos.xlsx"
 
 
 @pytest.mark.skipif(not FORMULARIO_XLSX.exists(), reason="formulário ausente")

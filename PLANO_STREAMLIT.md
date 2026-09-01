@@ -108,7 +108,7 @@ Funções puras que recebem os DataFrames + filtros (operação, data) e devolve
 ```
 maturidade-dashboard/
 ├── formulario/
-│   └── F_O_025_Formulario_Maturidade_Planos.xlsx   # fonte de dados
+│   └── F.O.091.GOCO - Analise de Maturidade em Processos.xlsx
 ├── streamlit/
 │   ├── app.py                     # entrada: filtros globais + navegação
 │   ├── data_loader.py          # leitura do Excel + ETL (Fase 1)
