@@ -31,7 +31,7 @@ pages/
   5_Plano_de_ação.py
   6_Qualidade.py
 formulario/
-  F_O_025_...xlsx       # Fonte de dados
+  F.O.091.GOCO - Analise de Maturidade em processos...xlsx       # Fonte de dados
 tests/
   test_metricas.py
   test_filtros.py
