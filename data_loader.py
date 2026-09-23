@@ -148,8 +148,8 @@ _CONFIG = {
         "col_item": "Processo avaliado",
         "subs": [
             ("Sub Existência", "Existência", fn_numerico),
-            ("Sub Aplicação", "Abrangência", fn_numerico),
-            ("Sub Padrão", None, _fn_na),
+            ("Sub Aplicação", "Atualização", fn_numerico),
+            ("Sub Padrão", "Padrão", fn_numerico),
             ("Sub Conformidade", "Conformidade", fn_numerico),
             ("Sub Atualização", None, _fn_na),
         ],
