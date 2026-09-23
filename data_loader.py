@@ -59,7 +59,7 @@ def fn_conformidade(v):
     t = t.upper()
     if t == "CONFORMIDADE":
         return 1.0
-    if t == "CONFORMIDADE PONTUAL":
+    if t in ("CONFORMIDADE PONTUAL", "OBSERVAÇÃO"):
         return 0.5
     if t in ("NÃO CONFORMIDADE", "NÃO CONFORMIDADE GRAVE"):
         return 0.0
@@ -139,8 +139,8 @@ _CONFIG = {
             ("Sub Existência", "Treinamento está coerente aos documentos?", fn_sim_nao),
             ("Sub Aplicação", "Treinamento foi aplicado?", fn_sim_nao),
             ("Sub Padrão", None, _fn_na),
-            ("Sub Conformidade", "Conforme?", fn_conformidade),
-            ("Sub Atualização", "Houve atualização?", fn_sim_nao),
+            ("Sub Conformidade", "Conforme?.1", fn_conformidade),
+            ("Sub Atualização", None, _fn_na),
         ],
     },
     "Qualidade": {
