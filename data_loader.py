@@ -6,22 +6,11 @@ from pathlib import Path
 
 import pandas as pd
 
-PASTA_FORMULARIOS = Path(__file__).resolve().parent / "formulario"
-FORMULARIO_PRINCIPAL = PASTA_FORMULARIOS / "F.O.091.GOCO - Analise de Maturidade em Processos.xlsx"
-
-# Lista de todos os formulários Excel na pasta
-def obter_formularios():
-    """Retorna uma lista com todos os arquivos Excel na pasta de formulários."""
-    formularios = list(PASTA_FORMULARIOS.glob("*.xlsx"))
-    # Filtrar apenas arquivos que começam com "F.O." e contêm "Analise de Maturidade"
-    formularios_filtrados = [
-        f for f in formularios 
-        if f.name.startswith("F.O.") and "Analise de Maturidade" in f.name
-    ]
-    return formularios_filtrados
-
-# Para compatibilidade, manter a referência ao formulário principal
-FORMULARIO = FORMULARIO_PRINCIPAL
+FORMULARIO = (
+    Path(__file__).resolve().parent
+    / "formulario"
+    / "F.O.091.GOCO - Analise de Maturidade em Processos.xlsx"
+)
 
 COLUNAS_PLANO = [
     "Operação",
@@ -220,80 +209,17 @@ def _mtime() -> float:
     return FORMULARIO.stat().st_mtime if FORMULARIO.exists() else 0.0
 
 
-def _fato_de_formulario(formulario_path: Path, aba: str, cfg: dict) -> pd.DataFrame:
-    """Ler dados de uma aba específica de um formulário Excel."""
-    try:
-        df = pd.read_excel(formulario_path, sheet_name=aba)
-        df = df[df["Data da avaliação"].notna()].copy()
-        df["Operação"] = df["Operação"].astype(str).str.strip()
-        df["Processo avaliado"] = df["Processo avaliado"].astype(str).str.strip()
-        df = df[df["Operação"].ne("") & df["Operação"].ne("Exemplo (apagar)")]
-        df["Frente"] = cfg["frente"]
-        df["Arquivo"] = formulario_path.name  # Adicionar referência ao arquivo
-
-        for nome, col, fn in cfg["subs"]:
-            if col is None:
-                df[nome] = None
-            else:
-                df[nome] = df[col].map(fn)
-
-        subs = [nome for nome, _, _ in cfg["subs"]]
-        df["ScoreLinha"] = df[subs].apply(lambda r: _score_linha(r.tolist()), axis=1)
-
-        cols = ["Frente", cfg["col_item"], "ScoreLinha"] + subs + _COLS_BASE + ["Arquivo"]
-        cols = list(dict.fromkeys(c for c in cols if c in df.columns))
-        df = df[cols]
-        return df.reset_index(drop=True)
-    except Exception as e:
-        print(f"Erro ao ler aba {aba} do formulário {formulario_path.name}: {e}")
-        return pd.DataFrame()
-
 @lru_cache(maxsize=1)
 def carregar_dados(mtime: float = 0.0) -> dict[str, pd.DataFrame]:
     del mtime
-    
-    formularios = obter_formularios()
-    print(f"Formulários encontrados: {[f.name for f in formularios]}")
-    
-    # Listas para armazenar dados de todos os formulários
-    todos_docs = []
-    todos_inds = []
-    todos_tres = []
-    todos_quas = []
-    
-    for formulario in formularios:
-        print(f"Carregando dados de: {formulario.name}")
-        
-        doc = _fato_de_formulario(formulario, "Avaliação", _CONFIG["Avaliação"])
-        ind = _fato_de_formulario(formulario, "Indicadores", _CONFIG["Indicadores"])
-        tre = _fato_de_formulario(formulario, "Treinamento", _CONFIG["Treinamento"])
-        qua = _fato_de_formulario(formulario, "Qualidade", _CONFIG["Qualidade"])
-        
-        if not doc.empty:
-            todos_docs.append(doc)
-        if not ind.empty:
-            todos_inds.append(ind)
-        if not tre.empty:
-            todos_tres.append(tre)
-        if not qua.empty:
-            todos_quas.append(qua)
-    
-    # Concatenar dados de todos os formulários
-    doc_final = pd.concat(todos_docs, ignore_index=True) if todos_docs else pd.DataFrame()
-    ind_final = pd.concat(todos_inds, ignore_index=True) if todos_inds else pd.DataFrame()
-    tre_final = pd.concat(todos_tres, ignore_index=True) if todos_tres else pd.DataFrame()
-    qua_final = pd.concat(todos_quas, ignore_index=True) if todos_quas else pd.DataFrame()
-    
-    print(f"Total de registros carregados:")
-    print(f"  Documentação: {len(doc_final)}")
-    print(f"  Indicadores: {len(ind_final)}")
-    print(f"  Treinamento: {len(tre_final)}")
-    print(f"  Qualidade: {len(qua_final)}")
-    
+    doc = _fato("Avaliação", _CONFIG["Avaliação"])
+    ind = _fato("Indicadores", _CONFIG["Indicadores"])
+    tre = _fato("Treinamento", _CONFIG["Treinamento"])
+    qua = _fato("Qualidade", _CONFIG["Qualidade"])
     return {
-        "Documentacao": doc_final,
-        "Indicadores": ind_final,
-        "Treinamento": tre_final,
-        "Qualidade": qua_final,
-        "PlanoAcao": _plano_acao(doc_final, ind_final, tre_final),
+        "Documentacao": doc,
+        "Indicadores": ind,
+        "Treinamento": tre,
+        "Qualidade": qua,
+        "PlanoAcao": _plano_acao(doc, ind, tre),
     }
