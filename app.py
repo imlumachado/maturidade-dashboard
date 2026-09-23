@@ -136,28 +136,52 @@ if not scores.empty:
 else:
     empty_state()
 
-secao("Ranking das Operações (último ciclo vs anterior)")
+secao("Ranking das Operações")
 evol = evolucao(doc_op, ind_op, tre_op, qua_op)
 if not evol.empty:
-    evol_display = evol.copy()
-    evol_display["Faixa"] = evol_display["Faixa"].map(chip_faixa)
-    evol_display["Evolução"] = evol_display["Evolução"].map(chip_evolucao)
-    for col in ("Score Final Último Ciclo", "Score Final Ciclo Anterior"):
-        evol_display[col] = evol_display[col].map(chip_score)
-    st.markdown(
-        tabela_html(
-            evol_display[
-                [
-                    "Operação",
-                    "Score Final Último Ciclo",
-                    "Faixa",
-                    "Score Final Ciclo Anterior",
-                    "Variação",
-                    "Evolução",
-                ]
-            ].astype(object).map(lambda v: fmt_num(v) if isinstance(v, (int, float)) else v)
-        ),
-        unsafe_allow_html=True,
-    )
+    # Verificar se há ciclo anterior
+    tem_ciclo_anterior = evol["Score Final Ciclo Anterior"].notna().any()
+    
+    if tem_ciclo_anterior:
+        evol_display = evol.copy()
+        evol_display["Faixa"] = evol_display["Faixa"].map(chip_faixa)
+        evol_display["Evolução"] = evol_display["Evolução"].map(chip_evolucao)
+        for col in ("Score Final Último Ciclo", "Score Final Ciclo Anterior"):
+            evol_display[col] = evol_display[col].map(chip_score)
+        st.markdown(
+            tabela_html(
+                evol_display[
+                    [
+                        "Operação",
+                        "Score Final Último Ciclo",
+                        "Faixa",
+                        "Score Final Ciclo Anterior",
+                        "Variação",
+                        "Evolução",
+                    ]
+                ].astype(object).map(lambda v: fmt_num(v) if isinstance(v, (int, float)) else v)
+            ),
+            unsafe_allow_html=True,
+        )
+    else:
+        st.info("ℹ️ **Projeto em fase piloto** — Esta é a primeira avaliação realizada.")
+        
+        # Mostrar apenas os dados da avaliação atual
+        evol_display = evol.copy()
+        evol_display["Faixa"] = evol_display["Faixa"].map(chip_faixa)
+        for col in ("Score Final Último Ciclo",):
+            evol_display[col] = evol_display[col].map(chip_score)
+        st.markdown(
+            tabela_html(
+                evol_display[
+                    [
+                        "Operação",
+                        "Score Final Último Ciclo",
+                        "Faixa",
+                    ]
+                ].astype(object).map(lambda v: fmt_num(v) if isinstance(v, (int, float)) else v)
+            ),
+            unsafe_allow_html=True,
+        )
 else:
     empty_state()

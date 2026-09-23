@@ -68,29 +68,59 @@ else:
 secao("Último Ciclo vs Ciclo Anterior")
 evol = evolucao(doc, ind, tre, qua)
 if not evol.empty:
-    exibir = evol.copy()
-    exibir["Faixa"] = exibir["Faixa"].map(chip_faixa)
-    exibir["Evolução"] = exibir["Evolução"].map(chip_evolucao)
-    for col in ("Data Primeira Avaliação", "Data Última Avaliação"):
-        exibir[col] = exibir[col].map(lambda d: d.strftime("%d/%m/%Y") if pd.notna(d) else "—")
-    for col in ("Score Final Ciclo Anterior", "Score Final Último Ciclo"):
-        exibir[col] = exibir[col].map(chip_score)
-    st.markdown(
-        tabela_html(
-            exibir[
-                [
-                    "Operação",
-                    "Data Primeira Avaliação",
-                    "Data Última Avaliação",
-                    "Score Final Ciclo Anterior",
-                    "Score Final Último Ciclo",
-                    "Variação",
-                    "Faixa",
-                    "Evolução",
-                ]
-            ].astype(object).map(lambda v: fmt_num(v) if isinstance(v, (int, float)) else v)
-        ),
-        unsafe_allow_html=True,
-    )
+    # Verificar se há ciclo anterior
+    tem_ciclo_anterior = evol["Score Final Ciclo Anterior"].notna().any()
+    
+    if tem_ciclo_anterior:
+        exibir = evol.copy()
+        exibir["Faixa"] = exibir["Faixa"].map(chip_faixa)
+        exibir["Evolução"] = exibir["Evolução"].map(chip_evolucao)
+        for col in ("Data Primeira Avaliação", "Data Última Avaliação"):
+            exibir[col] = exibir[col].map(lambda d: d.strftime("%d/%m/%Y") if pd.notna(d) else "—")
+        for col in ("Score Final Ciclo Anterior", "Score Final Último Ciclo"):
+            exibir[col] = exibir[col].map(chip_score)
+        st.markdown(
+            tabela_html(
+                exibir[
+                    [
+                        "Operação",
+                        "Data Primeira Avaliação",
+                        "Data Última Avaliação",
+                        "Score Final Ciclo Anterior",
+                        "Score Final Último Ciclo",
+                        "Variação",
+                        "Faixa",
+                        "Evolução",
+                    ]
+                ].astype(object).map(lambda v: fmt_num(v) if isinstance(v, (int, float)) else v)
+            ),
+            unsafe_allow_html=True,
+        )
+    else:
+        st.info("ℹ️ **Projeto em fase piloto** — Esta é a primeira avaliação realizada. Não há ciclos anteriores para comparação.")
+        
+        # Mostrar apenas os dados da avaliação atual
+        exibir = evol.copy()
+        exibir["Faixa"] = exibir["Faixa"].map(chip_faixa)
+        for col in ("Data Primeira Avaliação", "Data Última Avaliação"):
+            exibir[col] = exibir[col].map(lambda d: d.strftime("%d/%m/%Y") if pd.notna(d) else "—")
+        for col in ("Score Final Ciclo Anterior",):
+            exibir[col] = "N/A"
+        for col in ("Score Final Último Ciclo",):
+            exibir[col] = exibir[col].map(chip_score)
+        st.markdown(
+            tabela_html(
+                exibir[
+                    [
+                        "Operação",
+                        "Data Primeira Avaliação",
+                        "Data Última Avaliação",
+                        "Score Final Último Ciclo",
+                        "Faixa",
+                    ]
+                ].astype(object).map(lambda v: fmt_num(v) if isinstance(v, (int, float)) else v)
+            ),
+            unsafe_allow_html=True,
+        )
 else:
     empty_state()

@@ -193,6 +193,17 @@ def evolucao(
         s_ult = _score_em(ult, por_frente)
         s_prev = _score_em(prev, por_frente) if prev else None
         var = (s_ult - s_prev) if (s_ult is not None and s_prev is not None) else None
+        
+        # Determinar evolução
+        if var is None:
+            evolucao_texto = "Primeira avaliação" if prev is None else None
+        elif var > 0:
+            evolucao_texto = "▲ Melhorou"
+        elif var < 0:
+            evolucao_texto = "▼ Piorou"
+        else:
+            evolucao_texto = "➖ Estável"
+        
         linhas.append(
             {
                 "Operação": op,
@@ -201,11 +212,7 @@ def evolucao(
                 "Score Final Último Ciclo": s_ult,
                 "Score Final Ciclo Anterior": s_prev,
                 "Variação": var,
-                "Evolução": (
-                    None
-                    if var is None
-                    else ("▲ Melhorou" if var > 0 else ("▼ Piorou" if var < 0 else "➖ Estável"))
-                ),
+                "Evolução": evolucao_texto,
                 "Faixa": faixa_maturidade(s_ult),
             }
         )
