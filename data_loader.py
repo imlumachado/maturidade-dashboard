@@ -9,7 +9,7 @@ import pandas as pd
 FORMULARIO = (
     Path(__file__).resolve().parent
     / "formulario"
-    / "F.O.091.GOCO - Analise de Maturidade em Processos.xlsx"
+    / "F.O.091.GOCO Analise de Maturidade em Processos.xlsx"
 )
 
 COLUNAS_PLANO = [
@@ -109,21 +109,38 @@ def _score_linha(subs):
     return _arredondar(sum(vals) / len(vals) * 100)
 
 
+_SIM_NAO = lambda v: (1 if str(v).strip().upper() == "SIM" else (0 if str(v).strip().upper() in ("NÃO",) else None)) if v is not None else None
+_CONF_EXCEL = lambda v: (1 if str(v).strip() == "Conformidade" else (-1 if "grave" in str(v).lower() else (0 if "onformidade" in str(v).lower() else None))) if v is not None else None
+
 _CONFIG = {
-    "Avaliação": {
+    "Documentos": {
         "frente": "Documentação",
         "col_item": "Nome_Documento",
+        "col_processo": "Frente avaliada",
+        "excel_raw": {
+            "Existe?": _SIM_NAO,
+            "Está atualizado?": _SIM_NAO,
+            "Padronizado?": _SIM_NAO,
+            "Conforme?": _CONF_EXCEL,
+        },
         "subs": [
             ("Sub Existência", "Existe?", fn_sim_nao),
             ("Sub Aplicação", None, _fn_na),
             ("Sub Padrão", "Padronizado?", fn_sim_nao),
-            ("Sub Conformidade", "Coforme?", fn_conformidade),
+            ("Sub Conformidade", "Conforme?", fn_conformidade),
             ("Sub Atualização", "Está atualizado?", fn_sim_nao),
         ],
     },
     "Indicadores": {
         "frente": "Indicadores",
         "col_item": "Nome_Indicador",
+        "col_processo": "Frente avaliada",
+        "excel_raw": {
+            "Existe indicador?": _SIM_NAO,
+            "No padrão?": _SIM_NAO,
+            "Conforme?": _CONF_EXCEL,
+            "Como é atualizado?": lambda v: (1 if "utom" in str(v) else (0.5 if "anual" in str(v) else (0 if "tualizado" in str(v) else None))) if v is not None else None,
+        },
         "subs": [
             ("Sub Existência", "Existe indicador?", fn_sim_nao),
             ("Sub Aplicação", None, _fn_na),
@@ -134,23 +151,37 @@ _CONFIG = {
     },
     "Treinamento": {
         "frente": "Treinamento",
-        "col_item": "Nome_Treinamento",
+        "col_item": "Item avaliado",
+        "col_processo": "Frente avaliada",
+        "excel_raw": {
+            "Existe?": _SIM_NAO,
+            "Está atualizado?": _SIM_NAO,
+            "Padronizado?": _SIM_NAO,
+            "Conforme?": _CONF_EXCEL,
+        },
         "subs": [
-            ("Sub Existência", "Treinamento está coerente aos documentos?", fn_sim_nao),
-            ("Sub Aplicação", "Treinamento foi aplicado?", fn_sim_nao),
-            ("Sub Padrão", None, _fn_na),
-            ("Sub Conformidade", "Conforme?.1", fn_conformidade),
+            ("Sub Existência", "Existe?", fn_sim_nao),
+            ("Sub Aplicação", "Está atualizado?", fn_sim_nao),
+            ("Sub Padrão", "Padronizado?", fn_sim_nao),
+            ("Sub Conformidade", "Conforme?", fn_conformidade),
             ("Sub Atualização", None, _fn_na),
         ],
     },
     "Qualidade": {
         "frente": "Qualidade",
-        "col_item": "Processo avaliado",
+        "col_item": "Item avaliado",
+        "col_processo": "Frente avaliada",
+        "excel_raw": {
+            "Existe?": _SIM_NAO,
+            "Está atualizado?": _SIM_NAO,
+            "Padronizado?": _SIM_NAO,
+            "Conforme?": _CONF_EXCEL,
+        },
         "subs": [
-            ("Sub Existência", "Existência", fn_numerico),
-            ("Sub Aplicação", "Atualização", fn_numerico),
-            ("Sub Padrão", "Padrão", fn_numerico),
-            ("Sub Conformidade", "Conformidade", fn_numerico),
+            ("Sub Existência", "Existe?", fn_sim_nao),
+            ("Sub Aplicação", "Está atualizado?", fn_sim_nao),
+            ("Sub Padrão", "Padronizado?", fn_sim_nao),
+            ("Sub Conformidade", "Conforme?", fn_conformidade),
             ("Sub Atualização", None, _fn_na),
         ],
     },
@@ -161,10 +192,15 @@ def _fato(aba: str, cfg: dict) -> pd.DataFrame:
     df = pd.read_excel(FORMULARIO, sheet_name=aba)
     df = df[df["Data da avaliação"].notna()].copy()
     df["Operação"] = df["Operação"].astype(str).str.strip()
-    df["Processo avaliado"] = df["Processo avaliado"].astype(str).str.strip()
+    col_proc = cfg.get("col_processo", "Processo avaliado")
+    if col_proc in df.columns:
+        df[col_proc] = df[col_proc].astype(str).str.strip()
+        if col_proc != "Processo avaliado":
+            df["Processo avaliado"] = df[col_proc]
     df = df[df["Operação"].ne("") & df["Operação"].ne("Exemplo (apagar)")]
     df["Frente"] = cfg["frente"]
 
+    # Compute sub-scores for display
     for nome, col, fn in cfg["subs"]:
         if col is None:
             df[nome] = None
@@ -174,6 +210,74 @@ def _fato(aba: str, cfg: dict) -> pd.DataFrame:
     subs = [nome for nome, _, _ in cfg["subs"]]
     df["ScoreLinha"] = df[subs].apply(lambda r: _score_linha(r.tolist()), axis=1)
 
+    # Compute Geral replicating Excel formulas exactly
+    try:
+        import openpyxl
+        wb = openpyxl.load_workbook(str(FORMULARIO))
+        ws = wb[aba]
+        excel_raw = cfg.get("excel_raw", {})
+        geral_col = score_col = None
+        for c in range(1, ws.max_column + 1):
+            h = ws.cell(row=1, column=c).value
+            if h and h.strip() == "Geral":
+                geral_col = c
+            if h and h.strip() in ("Documentação", "Score Indicadores", "Score Treinamento", "Score"):
+                score_col = c
+
+        # Get raw column indices
+        raw_cols = {}
+        for c in range(1, ws.max_column + 1):
+            h = ws.cell(row=1, column=c).value
+            if h:
+                raw_cols[h.strip()] = c
+
+        def excel_sim_nao(val):
+            if val is None:
+                return None
+            t = str(val).strip().upper()
+            if t == "SIM":
+                return 1
+            if t in ("NÃO", "NÃO"):
+                return 0
+            return None
+
+        def excel_conformidade(val):
+            if val is None:
+                return None
+            t = str(val).strip()
+            if t == "Conformidade":
+                return 1
+            if "Não conformidade grave" in t:
+                return -1
+            if "onformidade" in t:
+                return 0
+            return None
+
+        n_rows = len(df)
+        score_vals = []
+        for row in range(2, n_rows + 2):
+            sub_vals = []
+            for raw_col_name, fn in excel_raw.items():
+                col_idx = raw_cols.get(raw_col_name)
+                if col_idx:
+                    raw_val = ws.cell(row=row, column=col_idx).value
+                    sub_vals.append(fn(raw_val))
+                else:
+                    sub_vals.append(None)
+            valid = [v for v in sub_vals if v is not None]
+            if valid:
+                score = round(sum(valid) / len(valid) * 100, 0)
+                score_vals.append(score)
+            else:
+                score_vals.append(None)
+        wb.close()
+
+        valid_scores = [s for s in score_vals if s is not None]
+        geral_val = sum(valid_scores) / len(valid_scores) if valid_scores else None
+        df["Geral"] = geral_val
+    except Exception:
+        df["Geral"] = df["ScoreLinha"].mean()
+
     cols = ["Frente", cfg["col_item"], "ScoreLinha", "Geral"] + subs + _COLS_BASE
     cols = list(dict.fromkeys(c for c in cols if c in df.columns))
     df = df[cols]
@@ -182,10 +286,11 @@ def _fato(aba: str, cfg: dict) -> pd.DataFrame:
 
 def _plano_acao(doc: pd.DataFrame, ind: pd.DataFrame, tre: pd.DataFrame) -> pd.DataFrame:
     def preparar(df, col_item):
+        col_proc = "Frente avaliada" if "Frente avaliada" in df.columns else "Processo avaliado"
         d = df[
             [
                 "Operação",
-                "Processo avaliado",
+                col_proc,
                 "Frente",
                 col_item,
                 "Plano de Ação",
@@ -197,7 +302,7 @@ def _plano_acao(doc: pd.DataFrame, ind: pd.DataFrame, tre: pd.DataFrame) -> pd.D
         return d.rename(columns={col_item: "Item"})
 
     pa = pd.concat(
-        [preparar(doc, "Nome_Documento"), preparar(ind, "Nome_Indicador"), preparar(tre, "Nome_Treinamento")],
+        [preparar(doc, "Nome_Documento"), preparar(ind, "Nome_Indicador"), preparar(tre, "Item avaliado")],
         ignore_index=True,
     )
     pa = pa[pa["Plano de Ação"].notna() & pa["Plano de Ação"].astype(str).str.strip().ne("")]
@@ -212,7 +317,7 @@ def _mtime() -> float:
 @lru_cache(maxsize=1)
 def carregar_dados(mtime: float = 0.0) -> dict[str, pd.DataFrame]:
     del mtime
-    doc = _fato("Avaliação", _CONFIG["Avaliação"])
+    doc = _fato("Documentos", _CONFIG["Documentos"])
     ind = _fato("Indicadores", _CONFIG["Indicadores"])
     tre = _fato("Treinamento", _CONFIG["Treinamento"])
     qua = _fato("Qualidade", _CONFIG["Qualidade"])
