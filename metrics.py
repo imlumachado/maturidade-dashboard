@@ -16,6 +16,10 @@ SUB_QUA = SUB_DOC
 def score_frente(df: pd.DataFrame) -> Optional[float]:
     if df.empty:
         return None
+    if "Geral" in df.columns:
+        s = df["Geral"].mean()
+        if not pd.isna(s):
+            return round(float(s), 2)
     s = df["ScoreLinha"].mean()
     return None if pd.isna(s) else round(float(s), 2)
 
@@ -169,9 +173,9 @@ def _score_em(d: object, fatos: list[pd.DataFrame]) -> Optional[float]:
     for df in fatos:
         g = df[pd.to_datetime(df["Data da avaliação"]).dt.date == d]
         if not g.empty:
-            s = g["ScoreLinha"].mean()
-            if not pd.isna(s):
-                scores.append(float(s))
+            s = score_frente(g)
+            if s is not None:
+                scores.append(s)
     if not scores:
         return None
     return round(sum(scores) / len(scores), 2)

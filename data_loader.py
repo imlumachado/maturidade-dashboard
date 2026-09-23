@@ -174,7 +174,7 @@ def _fato(aba: str, cfg: dict) -> pd.DataFrame:
     subs = [nome for nome, _, _ in cfg["subs"]]
     df["ScoreLinha"] = df[subs].apply(lambda r: _score_linha(r.tolist()), axis=1)
 
-    cols = ["Frente", cfg["col_item"], "ScoreLinha"] + subs + _COLS_BASE
+    cols = ["Frente", cfg["col_item"], "ScoreLinha", "Geral"] + subs + _COLS_BASE
     cols = list(dict.fromkeys(c for c in cols if c in df.columns))
     df = df[cols]
     return df.reset_index(drop=True)
