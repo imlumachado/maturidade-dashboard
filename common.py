@@ -32,10 +32,15 @@ def preparar_dados() -> None:
     datas_todas = pd.concat(
         [dados[f]["Data da avaliação"] for f in _FATOS]
     ).dropna()
+    
+    # Converter para datetime e remover valores inválidos
+    datas_todas = pd.to_datetime(datas_todas, errors='coerce').dropna()
+    
     if datas_todas.empty:
         inicio = fim = None
     else:
-        minimo, maximo = datas_todas.min().date(), datas_todas.max().date()
+        minimo = datas_todas.min().date()
+        maximo = datas_todas.max().date()
 
     ops_todas = set(ops)
 
