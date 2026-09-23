@@ -59,26 +59,13 @@ def renderizar(
         return
 
     m = metricas_frente(df, subs)
-    if "Sub Coerência" in subs:
-        labels = [
-            ("Coerência", "Sub Coerência"),
-            ("Aplicação", "Sub Aplicação"),
-            ("Atualização", "Sub Atualização"),
-            ("Conformidade", "Sub Conformidade"),
-        ]
-    elif "Sub Abrangência" in subs:
-        labels = [
-            ("Existência", "Sub Existência"),
-            ("Abrangência", "Sub Abrangência"),
-            ("Conformidade", "Sub Conformidade"),
-        ]
-    else:
-        labels = [
-            ("Existência", "Sub Existência"),
-            ("Atualização", "Sub Atualização"),
-            ("Padrão", "Sub Padrão"),
-            ("Conformidade", "Sub Conformidade"),
-        ]
+    labels = [
+        ("Existência", "Sub Existência"),
+        ("Aplicação", "Sub Aplicação"),
+        ("Padrão", "Sub Padrão"),
+        ("Conformidade", "Sub Conformidade"),
+        ("Atualização", "Sub Atualização"),
+    ]
 
     rotulo_total = {
         "Documentação": "Documentos avaliados",
@@ -98,7 +85,7 @@ def renderizar(
                 "valor_format": _fmt_pct,
             }
         )
-    cards.append({"titulo": f"Graves ({titulo})", "valor": m["Graves"], "cor": "#DC2626", "valor_format": _fmt_int})
+    cards.append({"titulo": f"Parciais ({titulo})", "valor": m["Parciais"], "cor": "#F59E0B", "valor_format": _fmt_int})
     linha_cards(cards)
 
     secao("Detalhe")

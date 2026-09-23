@@ -19,7 +19,7 @@ _, _, tre, _ = dados_filtrados()
 renderizar(
     tre,
     titulo="Treinamento",
-    subtitulo="Coerência, aplicação, atualização e conformidade dos treinamentos.",
+    subtitulo="Existência, aplicação, padrão, conformidade e atualização dos treinamentos.",
     subs=SUB_TRE,
     col_item="Nome_Treinamento",
     cor_frente=CORES_FRENTES["Treinamento"],
@@ -29,10 +29,11 @@ renderizar(
         "Processo avaliado",
         "Nome_Treinamento",
         "ScoreLinha",
-        "Sub Coerência",
+        "Sub Existência",
         "Sub Aplicação",
-        "Sub Atualização",
+        "Sub Padrão",
         "Sub Conformidade",
+        "Sub Atualização",
         "Observação",
     ],
 )

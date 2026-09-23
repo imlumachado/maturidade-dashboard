@@ -19,7 +19,7 @@ _, ind, _, _ = dados_filtrados()
 renderizar(
     ind,
     titulo="Indicadores",
-    subtitulo="Existência, forma de atualização, padrão e conformidade dos indicadores.",
+    subtitulo="Existência, aplicação, padrão, conformidade e atualização dos indicadores.",
     subs=SUB_IND,
     col_item="Nome_Indicador",
     cor_frente=CORES_FRENTES["Indicadores"],
@@ -30,9 +30,10 @@ renderizar(
         "Nome_Indicador",
         "ScoreLinha",
         "Sub Existência",
-        "Sub Atualização",
+        "Sub Aplicação",
         "Sub Padrão",
         "Sub Conformidade",
+        "Sub Atualização",
         "Observação",
     ],
 )

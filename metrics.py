@@ -7,10 +7,10 @@ import pandas as pd
 
 FATOS = ("Documentação", "Indicadores", "Treinamento", "Qualidade")
 
-SUB_DOC = ["Sub Existência", "Sub Atualização", "Sub Padrão", "Sub Conformidade"]
+SUB_DOC = ["Sub Existência", "Sub Aplicação", "Sub Padrão", "Sub Conformidade", "Sub Atualização"]
 SUB_IND = SUB_DOC
-SUB_TRE = ["Sub Coerência", "Sub Aplicação", "Sub Atualização", "Sub Conformidade"]
-SUB_QUA = ["Sub Existência", "Sub Abrangência", "Sub Conformidade"]
+SUB_TRE = SUB_DOC
+SUB_QUA = SUB_DOC
 
 
 def score_frente(df: pd.DataFrame) -> Optional[float]:
@@ -63,7 +63,6 @@ def metricas_frente(df: pd.DataFrame, subs: list[str]) -> dict:
     m = {
         "Total": total,
         "Score": score_frente(df),
-        "Itens Negativos": int((df["ScoreLinha"] < 0).sum()) if total else 0,
     }
     for s in subs:
         nome = s.replace("Sub ", "Score ")
@@ -71,9 +70,8 @@ def metricas_frente(df: pd.DataFrame, subs: list[str]) -> dict:
         m[nome] = 0.0 if pd.isna(v) else round(float(v * 100), 2)
         m["% " + s] = round(_conta(df, s, 1.0) / total * 100, 2) if total else 0.0
     m["Conformes"] = _conta(df, "Sub Conformidade", 1.0)
+    m["Parciais"] = _conta(df, "Sub Conformidade", 0.5)
     m["Não Conformes"] = _conta(df, "Sub Conformidade", 0.0)
-    m["Graves"] = _conta(df, "Sub Conformidade", -1.0)
-    m["% Graves"] = round(m["Graves"] / total * 100, 2) if total else 0.0
     return m
 
 
@@ -106,23 +104,23 @@ def metricas_geral(
         "Operações Avaliadas": len(ops),
         "Data Última Avaliação": datas.max().date() if not datas.empty else None,
         "Data Primeira Avaliação": datas.min().date() if not datas.empty else None,
-        "Graves Total": (
-            _conta(doc, "Sub Conformidade", -1.0)
-            + _conta(ind, "Sub Conformidade", -1.0)
-            + _conta(tre, "Sub Conformidade", -1.0)
-            + _conta(qua, "Sub Conformidade", -1.0)
+        "Conformes Total": (
+            _conta(doc, "Sub Conformidade", 1.0)
+            + _conta(ind, "Sub Conformidade", 1.0)
+            + _conta(tre, "Sub Conformidade", 1.0)
+            + _conta(qua, "Sub Conformidade", 1.0)
+        ),
+        "Parciais Total": (
+            _conta(doc, "Sub Conformidade", 0.5)
+            + _conta(ind, "Sub Conformidade", 0.5)
+            + _conta(tre, "Sub Conformidade", 0.5)
+            + _conta(qua, "Sub Conformidade", 0.5)
         ),
         "Não Conformes Total": (
             _conta(doc, "Sub Conformidade", 0.0)
             + _conta(ind, "Sub Conformidade", 0.0)
             + _conta(tre, "Sub Conformidade", 0.0)
             + _conta(qua, "Sub Conformidade", 0.0)
-        ),
-        "Itens Negativos Total": (
-            int((doc["ScoreLinha"] < 0).sum())
-            + int((ind["ScoreLinha"] < 0).sum())
-            + int((tre["ScoreLinha"] < 0).sum())
-            + int((qua["ScoreLinha"] < 0).sum())
         ),
     }
 

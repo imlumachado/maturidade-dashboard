@@ -19,7 +19,7 @@ _, _, _, qua = dados_filtrados()
 renderizar(
     qua,
     titulo="Qualidade",
-    subtitulo="Existência, abrangência e conformidade das monitorias de qualidade.",
+    subtitulo="Existência, aplicação, padrão, conformidade e atualização das monitorias de qualidade.",
     subs=SUB_QUA,
     col_item="Processo avaliado",
     cor_frente=CORES_FRENTES["Qualidade"],
@@ -29,8 +29,10 @@ renderizar(
         "Processo avaliado",
         "ScoreLinha",
         "Sub Existência",
-        "Sub Abrangência",
+        "Sub Aplicação",
+        "Sub Padrão",
         "Sub Conformidade",
+        "Sub Atualização",
         "Observação",
     ],
 )
