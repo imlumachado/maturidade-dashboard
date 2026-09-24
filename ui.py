@@ -624,7 +624,6 @@ NAV_ITENS = [
     ("pages/2_Indicadores.py", "Indicadores"),
     ("pages/3_Treinamento.py", "Treinamento"),
     ("pages/Monitoria.py", "Qualidade"),
-    ("pages/4_Evolução.py", "Evolução"),
     ("pages/5_Plano_de_ação.py", "Plano de Ação"),
 ]
 
