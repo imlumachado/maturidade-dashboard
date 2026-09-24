@@ -16,6 +16,7 @@ from metrics import (
     evolucao,
     faixa_maturidade,
     metricas_geral,
+    score_frente,
     scores_por_operacao,
     ultimo_ciclo_global,
 )
@@ -45,35 +46,6 @@ def _fmt_score(v):
 
 def _fmt_int(v):
     return str(int(v)) if v is not None else "0"
-
-
-def _radar_data(doc, ind, tre, qua):
-    """Calcula a média de cada dimensão de metadados (0–100) para cada frente."""
-    frentes = {
-        "Documentação": doc,
-        "Indicadores": ind,
-        "Treinamento": tre,
-        "Qualidade": qua,
-    }
-    dimensoes = ["Existência", "Atualização", "Padrão", "Conformidade"]
-    sub_cols = {
-        "Existência": "Sub Existência",
-        "Atualização": "Sub Atualização",
-        "Padrão": "Sub Padrão",
-        "Conformidade": "Sub Conformidade",
-    }
-    dados = {}
-    for nome, df in frentes.items():
-        if df.empty:
-            dados[nome] = [0.0] * len(dimensoes)
-            continue
-        vals = []
-        for dim in dimensoes:
-            col = sub_cols[dim]
-            v = df[col].mean() if col in df.columns else 0.0
-            vals.append(round(float(v) * 100, 1) if pd.notna(v) else 0.0)
-        dados[nome] = vals
-    return dimensoes, dados
 
 
 aplicar_css()
@@ -165,33 +137,38 @@ if not scores.empty:
 else:
     empty_state()
 
-secao("Radar de Metadados")
-dimensoes, dados_radar = _radar_data(doc, ind, tre, qua)
-if any(v != [0.0] * len(dimensoes) for v in dados_radar.values()):
+secao("Radar de Maturidade por Frente")
+frentes_nomes = ["Documentação", "Indicadores", "Treinamento", "Monitoria"]
+frentes_dados = [doc, ind, tre, qua]
+frentes_scores = []
+for df in frentes_dados:
+    s = score_frente(df)
+    frentes_scores.append(s if s is not None else 0.0)
+if any(s > 0 for s in frentes_scores):
     fig_radar = go.Figure()
-    for nome, vals in dados_radar.items():
-        cor = CORES_FRENTES.get(nome, "#94A3B8")
-        fig_radar.add_trace(
-            go.Scatterpolar(
-                r=vals + [vals[0]],
-                theta=dimensoes + [dimensoes[0]],
-                fill="toself",
-                name=nome,
-                line=dict(color=cor, width=2),
-                fillcolor=cor,
-                opacity=0.15,
-            )
+    fig_radar.add_trace(
+        go.Scatterpolar(
+            r=frentes_scores + [frentes_scores[0]],
+            theta=frentes_nomes + [frentes_nomes[0]],
+            fill="toself",
+            name="Score",
+            line=dict(color=VERDE_ESCURO, width=2),
+            fillcolor=VERDE_ESCURO,
+            opacity=0.2,
+            text=[fmt_num(v) for v in frentes_scores] + [fmt_num(frentes_scores[0])],
+            hovertemplate="%{theta}: <b>%{text}</b><extra></extra>",
         )
+    )
     fig_radar.update_layout(
         polar=dict(
-            radialaxis=dict(visible=True, range=[0, 100], gridcolor="#E2E8F0"),
+            radialaxis=dict(visible=True, range=[0, 100], gridcolor="#E2E8F0", ticksuffix="%"),
             angularaxis=dict(gridcolor="#E2E8F0"),
             bgcolor="rgba(0,0,0,0)",
         ),
         height=420,
         font=dict(family="Stack Sans Text, Segoe UI", color=TEXTO_MUTE),
         margin=dict(l=60, r=60, t=40, b=40),
-        legend=dict(orientation="h", y=-0.15),
+        showlegend=False,
         paper_bgcolor="rgba(0,0,0,0)",
     )
     st.plotly_chart(fig_radar, width="stretch")
