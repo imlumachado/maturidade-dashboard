@@ -87,16 +87,3 @@ def renderizar(
         )
     cards.append({"titulo": f"Parciais ({titulo})", "valor": m["Parciais"], "cor": "#F59E0B", "valor_format": _fmt_int})
     linha_cards(cards)
-
-    secao("Detalhe")
-    visiveis = [c for c in cols_tabela if c in df.columns]
-    st.dataframe(
-        df[visiveis],
-        hide_index=True,
-        width="stretch",
-        column_config={
-            "ScoreLinha": st.column_config.ProgressColumn(
-                "ScoreLinha", min_value=-100, max_value=100, format="%.0f"
-            )
-        },
-    )
