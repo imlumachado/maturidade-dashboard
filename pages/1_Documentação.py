@@ -19,7 +19,7 @@ doc, _, _, _ = dados_filtrados()
 renderizar(
     doc,
     titulo="Documentação",
-    subtitulo="Existência, aplicação, padrão, conformidade e atualização dos documentos.",
+    subtitulo="Existência, padrão, conformidade e atualização dos documentos.",
     subs=SUB_DOC,
     col_item="Nome_Documento",
     cor_frente=CORES_FRENTES["Documentação"],
@@ -30,10 +30,11 @@ renderizar(
         "Nome_Documento",
         "ScoreLinha",
         "Sub Existência",
-        "Sub Aplicação",
         "Sub Padrão",
         "Sub Conformidade",
         "Sub Atualização",
         "Observação",
     ],
+    excluir_labels=["Aplicação"],
+    mostrar_parciais=False,
 )

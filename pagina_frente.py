@@ -50,6 +50,8 @@ def renderizar(
     cor_frente: str,
     cols_tabela: list[str],
     arquivo: str = "",
+    excluir_labels: list[str] | None = None,
+    mostrar_parciais: bool = True,
 ):
     aplicar_css()
     titulo_pagina(titulo, subtitulo)
@@ -66,6 +68,8 @@ def renderizar(
         ("Conformidade", "Sub Conformidade"),
         ("Atualização", "Sub Atualização"),
     ]
+    if excluir_labels:
+        labels = [(r, s) for r, s in labels if r not in excluir_labels]
 
     rotulo_total = {
         "Documentação": "Documentos avaliados",
@@ -85,5 +89,6 @@ def renderizar(
                 "valor_format": _fmt_pct,
             }
         )
-    cards.append({"titulo": f"Parciais ({titulo})", "valor": m["Parciais"], "cor": "#F59E0B", "valor_format": _fmt_int})
+    if mostrar_parciais:
+        cards.append({"titulo": f"Parciais ({titulo})", "valor": m["Parciais"], "cor": "#F59E0B", "valor_format": _fmt_int})
     linha_cards(cards)
