@@ -20,7 +20,7 @@ from metrics import (
     scores_por_operacao,
     ultimo_ciclo_global,
 )
-from theme import CORES_FRENTES, PRETO, TEXTO_MUTE, cor_score_gradiente, fmt_num
+from theme import CORES_FRENTES, PRETO, TEXTO_MUTE, VERDE_ESCURO, cor_score_gradiente, fmt_num
 from ui import (
     aplicar_css,
     card,
