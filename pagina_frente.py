@@ -51,7 +51,6 @@ def renderizar(
     cols_tabela: list[str],
     arquivo: str = "",
     excluir_labels: list[str] | None = None,
-    mostrar_parciais: bool = True,
     mostrar_total: bool = True,
 ):
     aplicar_css()
@@ -91,6 +90,4 @@ def renderizar(
                 "valor_format": _fmt_pct,
             }
         )
-    if mostrar_parciais:
-        cards.append({"titulo": f"Parciais ({titulo})", "valor": m["Parciais"], "cor": "#F59E0B", "valor_format": _fmt_int})
     linha_cards(cards)
