@@ -36,5 +36,4 @@ renderizar(
         "Observação",
     ],
     excluir_labels=["Aplicação"],
-    mostrar_parciais=False,
 )
