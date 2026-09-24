@@ -52,6 +52,7 @@ def renderizar(
     arquivo: str = "",
     excluir_labels: list[str] | None = None,
     mostrar_parciais: bool = True,
+    mostrar_total: bool = True,
 ):
     aplicar_css()
     titulo_pagina(titulo, subtitulo)
@@ -78,8 +79,9 @@ def renderizar(
     secao("Indicadores-chave")
     cards = [
         {"titulo": f"Score {titulo}", "valor": m["Score"], "cor": cor_score_gradiente(m["Score"]), "valor_format": _fmt_score},
-        {"titulo": rotulo_total, "valor": m["Total"], "cor": cor_frente, "valor_format": _fmt_int},
     ]
+    if mostrar_total:
+        cards.append({"titulo": rotulo_total, "valor": m["Total"], "cor": cor_frente, "valor_format": _fmt_int})
     for rotulo, sub in labels:
         cards.append(
             {
