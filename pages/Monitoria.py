@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-"""Página Qualidade."""
+"""Página Monitoria."""
 import streamlit as st
 
-st.set_page_config(page_title="Qualidade", page_icon="🏅", layout="wide")
+st.set_page_config(page_title="Monitoria", page_icon="🏅", layout="wide")
 
 from common import dados_filtrados, preparar_dados
 from metrics import SUB_QUA
@@ -18,10 +18,10 @@ _, _, _, qua = dados_filtrados()
 
 renderizar(
     qua,
-    titulo="Qualidade",
-    subtitulo="Existência, aplicação, padrão, conformidade e atualização das monitorias de qualidade.",
+    titulo="Monitoria",
+    subtitulo="Existência, padrão, conformidade e atualização das monitorias de qualidade.",
     subs=SUB_QUA,
-    col_item="Processo avaliado",
+    col_item="Item avaliado",
     cor_frente=CORES_FRENTES["Qualidade"],
     arquivo="pages/Monitoria.py",
     cols_tabela=[
@@ -29,7 +29,6 @@ renderizar(
         "Processo avaliado",
         "ScoreLinha",
         "Sub Existência",
-        "Sub Aplicação",
         "Sub Padrão",
         "Sub Conformidade",
         "Sub Atualização",
