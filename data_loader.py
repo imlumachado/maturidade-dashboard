@@ -133,17 +133,18 @@ _CONFIG = {
     },
     "Indicadores": {
         "frente": "Indicadores",
-        "col_item": "Nome_Indicador",
+        "col_item": "Frente avaliada",
         "col_processo": "Frente avaliada",
         "excel_raw": {
             "Existe indicador?": _SIM_NAO,
+            "Aplicação": _SIM_NAO,
             "No padrão?": _SIM_NAO,
             "Conforme?": _CONF_EXCEL,
             "Como é atualizado?": lambda v: (1 if "utom" in str(v) else (0.5 if "anual" in str(v) else (0 if "tualizado" in str(v) else None))) if v is not None else None,
         },
         "subs": [
             ("Sub Existência", "Existe indicador?", fn_sim_nao),
-            ("Sub Aplicação", None, _fn_na),
+            ("Sub Aplicação", "Aplicação", fn_sim_nao),
             ("Sub Padrão", "No padrão?", fn_sim_nao),
             ("Sub Conformidade", "Conforme?", fn_conformidade),
             ("Sub Atualização", "Como é atualizado?", fn_atualizacao),
@@ -155,16 +156,17 @@ _CONFIG = {
         "col_processo": "Frente avaliada",
         "excel_raw": {
             "Existe?": _SIM_NAO,
+            "Aplicação": _SIM_NAO,
             "Está atualizado?": _SIM_NAO,
             "Padronizado?": _SIM_NAO,
             "Conforme?": _CONF_EXCEL,
         },
         "subs": [
             ("Sub Existência", "Existe?", fn_sim_nao),
-            ("Sub Aplicação", "Está atualizado?", fn_sim_nao),
+            ("Sub Aplicação", "Aplicação", fn_sim_nao),
             ("Sub Padrão", "Padronizado?", fn_sim_nao),
             ("Sub Conformidade", "Conforme?", fn_conformidade),
-            ("Sub Atualização", None, _fn_na),
+            ("Sub Atualização", "Está atualizado?", fn_sim_nao),
         ],
     },
     "Qualidade": {
@@ -287,22 +289,18 @@ def _fato(aba: str, cfg: dict) -> pd.DataFrame:
 def _plano_acao(doc: pd.DataFrame, ind: pd.DataFrame, tre: pd.DataFrame) -> pd.DataFrame:
     def preparar(df, col_item):
         col_proc = "Frente avaliada" if "Frente avaliada" in df.columns else "Processo avaliado"
-        d = df[
-            [
-                "Operação",
-                col_proc,
-                "Frente",
-                col_item,
-                "Plano de Ação",
-                "Responsável",
-                "Prazo",
-                "Status da Ação",
-            ]
-        ].copy()
-        return d.rename(columns={col_item: "Item"})
+        cols = ["Operação", col_proc, "Frente", col_item, "Plano de Ação", "Responsável", "Prazo", "Status da Ação"]
+        cols = list(dict.fromkeys(cols))
+        d = df[cols].copy()
+        rename = {col_item: "Item"}
+        if col_proc != "Item" and col_proc != col_item:
+            rename[col_proc] = "Processo avaliado"
+        elif col_proc == col_item:
+            rename[col_proc] = "Item"
+        return d.rename(columns=rename)
 
     pa = pd.concat(
-        [preparar(doc, "Nome_Documento"), preparar(ind, "Nome_Indicador"), preparar(tre, "Item avaliado")],
+        [preparar(doc, "Nome_Documento"), preparar(ind, "Frente avaliada"), preparar(tre, "Item avaliado")],
         ignore_index=True,
     )
     pa = pa[pa["Plano de Ação"].notna() & pa["Plano de Ação"].astype(str).str.strip().ne("")]
