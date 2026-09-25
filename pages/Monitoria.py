@@ -36,4 +36,5 @@ renderizar(
         "Sub Atualização",
         "Observação",
     ],
+    mostrar_total=False,
 )

@@ -163,7 +163,7 @@ _CONFIG = {
         },
         "subs": [
             ("Sub Existência", "Existe?", fn_conformidade),
-            ("Sub Aplicação", None, _fn_na),
+            ("Sub Aplicação", "Aplicação", fn_conformidade),
             ("Sub Padrão", "Padronizado?", fn_conformidade),
             ("Sub Conformidade", "Conforme?", fn_conformidade),
             ("Sub Atualização", "Está atualizado?", fn_conformidade),

@@ -21,13 +21,13 @@ renderizar(
     titulo="Treinamento",
     subtitulo="Existência, aplicação, padrão, conformidade e atualização dos treinamentos.",
     subs=SUB_TRE,
-    col_item="Nome_Treinamento",
+    col_item="Frente avaliada",
     cor_frente=CORES_FRENTES["Treinamento"],
     arquivo="pages/3_Treinamento.py",
     cols_tabela=[
         "Operação",
         "Processo avaliado",
-        "Nome_Treinamento",
+        "Frente avaliada",
         "ScoreLinha",
         "Sub Existência",
         "Sub Aplicação",
@@ -36,4 +36,5 @@ renderizar(
         "Sub Atualização",
         "Observação",
     ],
+    mostrar_total=False,
 )
