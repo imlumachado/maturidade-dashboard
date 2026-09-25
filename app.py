@@ -87,14 +87,6 @@ linha_cards(
     ]
 )
 
-secao("Alertas")
-linha_cards(
-    [
-        {"titulo": "Conformes Total", "valor": geral["Conformes Total"], "cor": "#059669", "valor_format": _fmt_int},
-        {"titulo": "Não Conformes Total", "valor": geral["Não Conformes Total"], "cor": "#DC2626", "valor_format": _fmt_int},
-    ]
-)
-
 secao("Scores por Operação e Frente")
 scores = scores_por_operacao(doc, ind, tre, qua)
 if not scores.empty:
