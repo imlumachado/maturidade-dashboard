@@ -115,20 +115,21 @@ _CONF_EXCEL = lambda v: (1 if str(v).strip() == "Conformidade" else (-1 if "grav
 _CONFIG = {
     "Documentos": {
         "frente": "Documentação",
-        "col_item": "Nome_Documento",
+        "col_item": "Frente avaliada",
         "col_processo": "Frente avaliada",
         "excel_raw": {
-            "Existe?": _SIM_NAO,
-            "Está atualizado?": _SIM_NAO,
-            "Padronizado?": _SIM_NAO,
+            "Existe?": _CONF_EXCEL,
+            "Aplicação?": _CONF_EXCEL,
+            "Está atualizado?": _CONF_EXCEL,
+            "Padronizado?": _CONF_EXCEL,
             "Conforme?": _CONF_EXCEL,
         },
         "subs": [
-            ("Sub Existência", "Existe?", fn_sim_nao),
-            ("Sub Aplicação", None, _fn_na),
-            ("Sub Padrão", "Padronizado?", fn_sim_nao),
+            ("Sub Existência", "Existe?", fn_conformidade),
+            ("Sub Aplicação", "Aplicação?", fn_conformidade),
+            ("Sub Atualização", "Está atualizado?", fn_conformidade),
+            ("Sub Padrão", "Padronizado?", fn_conformidade),
             ("Sub Conformidade", "Conforme?", fn_conformidade),
-            ("Sub Atualização", "Está atualizado?", fn_sim_nao),
         ],
     },
     "Indicadores": {
@@ -136,18 +137,18 @@ _CONFIG = {
         "col_item": "Frente avaliada",
         "col_processo": "Frente avaliada",
         "excel_raw": {
-            "Existe indicador?": _SIM_NAO,
-            "Aplicação": _SIM_NAO,
-            "No padrão?": _SIM_NAO,
+            "Existe indicador?": _CONF_EXCEL,
+            "Aplicação": _CONF_EXCEL,
+            "No padrão?": _CONF_EXCEL,
             "Conforme?": _CONF_EXCEL,
-            "Como é atualizado?": lambda v: (1 if "utom" in str(v) else (0.5 if "anual" in str(v) else (0 if "tualizado" in str(v) else None))) if v is not None else None,
+            "Atualização": _CONF_EXCEL,
         },
         "subs": [
-            ("Sub Existência", "Existe indicador?", fn_sim_nao),
-            ("Sub Aplicação", "Aplicação", fn_sim_nao),
-            ("Sub Padrão", "No padrão?", fn_sim_nao),
+            ("Sub Existência", "Existe indicador?", fn_conformidade),
+            ("Sub Aplicação", "Aplicação", fn_conformidade),
+            ("Sub Padrão", "No padrão?", fn_conformidade),
             ("Sub Conformidade", "Conforme?", fn_conformidade),
-            ("Sub Atualização", "Como é atualizado?", fn_atualizacao),
+            ("Sub Atualização", "Atualização", fn_conformidade),
         ],
     },
     "Treinamento": {
@@ -155,36 +156,36 @@ _CONFIG = {
         "col_item": "Item avaliado",
         "col_processo": "Frente avaliada",
         "excel_raw": {
-            "Existe?": _SIM_NAO,
-            "Aplicação": _SIM_NAO,
-            "Está atualizado?": _SIM_NAO,
-            "Padronizado?": _SIM_NAO,
+            "Existe?": _CONF_EXCEL,
+            "Está atualizado?": _CONF_EXCEL,
+            "Padronizado?": _CONF_EXCEL,
             "Conforme?": _CONF_EXCEL,
         },
         "subs": [
-            ("Sub Existência", "Existe?", fn_sim_nao),
-            ("Sub Aplicação", "Aplicação", fn_sim_nao),
-            ("Sub Padrão", "Padronizado?", fn_sim_nao),
+            ("Sub Existência", "Existe?", fn_conformidade),
+            ("Sub Aplicação", None, _fn_na),
+            ("Sub Padrão", "Padronizado?", fn_conformidade),
             ("Sub Conformidade", "Conforme?", fn_conformidade),
-            ("Sub Atualização", "Está atualizado?", fn_sim_nao),
+            ("Sub Atualização", "Está atualizado?", fn_conformidade),
         ],
     },
     "Qualidade": {
         "frente": "Qualidade",
-        "col_item": "Item avaliado",
+        "col_item": "Frente avaliada",
         "col_processo": "Frente avaliada",
         "excel_raw": {
-            "Existe?": _SIM_NAO,
-            "Está atualizado?": _SIM_NAO,
-            "Padronizado?": _SIM_NAO,
+            "Existe?": _CONF_EXCEL,
+            "Aplicação": _CONF_EXCEL,
+            "Está atualizado?": _CONF_EXCEL,
+            "Padronizado?": _CONF_EXCEL,
             "Conforme?": _CONF_EXCEL,
         },
         "subs": [
-            ("Sub Existência", "Existe?", fn_sim_nao),
-            ("Sub Aplicação", "Está atualizado?", fn_sim_nao),
-            ("Sub Padrão", "Padronizado?", fn_sim_nao),
+            ("Sub Existência", "Existe?", fn_conformidade),
+            ("Sub Aplicação", "Aplicação", fn_conformidade),
+            ("Sub Atualização", "Está atualizado?", fn_conformidade),
+            ("Sub Padrão", "Padronizado?", fn_conformidade),
             ("Sub Conformidade", "Conforme?", fn_conformidade),
-            ("Sub Atualização", None, _fn_na),
         ],
     },
 }
@@ -289,23 +290,23 @@ def _fato(aba: str, cfg: dict) -> pd.DataFrame:
 def _plano_acao(doc: pd.DataFrame, ind: pd.DataFrame, tre: pd.DataFrame) -> pd.DataFrame:
     def preparar(df, col_item):
         col_proc = "Frente avaliada" if "Frente avaliada" in df.columns else "Processo avaliado"
-        cols = ["Operação", col_proc, "Frente", col_item, "Plano de Ação", "Responsável", "Prazo", "Status da Ação"]
+        item_col = col_item if col_item in df.columns else col_proc
+        cols = ["Operação", col_proc, "Frente", item_col, "Plano de Ação", "Responsável", "Prazo", "Status da Ação"]
         cols = list(dict.fromkeys(cols))
         d = df[cols].copy()
-        rename = {col_item: "Item"}
-        if col_proc != "Item" and col_proc != col_item:
+        rename = {item_col: "Item"}
+        if col_proc in d.columns and col_proc != "Item":
             rename[col_proc] = "Processo avaliado"
-        elif col_proc == col_item:
-            rename[col_proc] = "Item"
         return d.rename(columns=rename)
 
     pa = pd.concat(
-        [preparar(doc, "Nome_Documento"), preparar(ind, "Frente avaliada"), preparar(tre, "Item avaliado")],
+        [preparar(doc, "Frente avaliada"), preparar(ind, "Frente avaliada"), preparar(tre, "Frente avaliada")],
         ignore_index=True,
     )
     pa = pa[pa["Plano de Ação"].notna() & pa["Plano de Ação"].astype(str).str.strip().ne("")]
     pa["Prazo"] = pd.to_datetime(pa["Prazo"], errors="coerce")
-    return pa[COLUNAS_PLANO].reset_index(drop=True)
+    cols = [c for c in COLUNAS_PLANO if c in pa.columns]
+    return pa[cols].reset_index(drop=True)
 
 
 def _mtime() -> float:
