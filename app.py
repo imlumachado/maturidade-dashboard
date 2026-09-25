@@ -90,7 +90,6 @@ linha_cards(
 secao("Alertas")
 linha_cards(
     [
-        {"titulo": "Itens Avaliados Total", "valor": geral["Itens Avaliados Total"], "cor": PRETO, "valor_format": _fmt_int},
         {"titulo": "Conformes Total", "valor": geral["Conformes Total"], "cor": "#059669", "valor_format": _fmt_int},
         {"titulo": "Não Conformes Total", "valor": geral["Não Conformes Total"], "cor": "#DC2626", "valor_format": _fmt_int},
     ]
