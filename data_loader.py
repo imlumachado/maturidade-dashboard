@@ -227,11 +227,11 @@ def _fato(aba: str, cfg: dict) -> pd.DataFrame:
             if h and h.strip() in ("Documentação", "Score Indicadores", "Score Treinamento", "Score"):
                 score_col = c
 
-        # Get raw column indices
+        # Get raw column indices (first occurrence only — avoid formula duplicates)
         raw_cols = {}
         for c in range(1, ws.max_column + 1):
             h = ws.cell(row=1, column=c).value
-            if h:
+            if h and h.strip() not in raw_cols:
                 raw_cols[h.strip()] = c
 
         def excel_sim_nao(val):
